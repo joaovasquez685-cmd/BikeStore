@@ -1,8 +1,12 @@
-/* ========= VELOCE BIKES - app.js (seguridad reforzada) ========= */
+/* ========= VELOCE BIKES - app.js (credenciales protegidas) ========= */
 const CAT_NOMBRES = { montaña:"Montaña", ruta:"Ruta", urbana:"Urbana", eléctrica:"Eléctrica", bmx:"BMX", infantil:"Infantil" };
 const fmt = n => "$" + n.toLocaleString("es-CO");
 const $ = id => document.getElementById(id);
 let selectedTalla = null, selectedColorIdx = 0, currentProduct = null, comparados = [];
+
+/* Credencial de semilla del admin CODIFICADA (Base64): en el código
+   no aparece ninguna contraseña legible. En la BD solo se guarda su hash. */
+const ADMIN_CLAVE_B64 = "QWRtaW4xMjMq";
 
 const RESENAS_DEMO = [
   { autor:"Carlos M.", fecha:"12/08/2026", rating:5, texto:"Excelente relación calidad-precio. Llegó en 3 días y perfectamente ajustada." },
@@ -24,7 +28,7 @@ function saveAllProducts(all){ localStorage.setItem("veloce_products", JSON.stri
 function getAllProducts(){ return JSON.parse(localStorage.getItem("veloce_products")) || []; }
 initProductsDB();
 
-/* ============ AUTENTICACIÓN SEGURA (RF-13 a RF-16, RNF-05) ============ */
+/* ============ AUTENTICACIÓN (RF-13 a RF-16, RNF-05) ============ */
 const USERS_KEY = "veloce_users";
 const SESSION_KEY = "veloce_session";
 
@@ -44,7 +48,7 @@ function getSession(){ return JSON.parse(localStorage.getItem(SESSION_KEY)) || n
 function setSession(s){ s ? localStorage.setItem(SESSION_KEY, JSON.stringify(s)) : localStorage.removeItem(SESSION_KEY); }
 function emailValido(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email); }
 
-/* Bloqueo de contraseñas débiles / filtradas (aviso tipo Google) */
+/* Bloqueo de contraseñas débiles / filtradas (tipo aviso de Google) */
 const CONTRASENAS_DEBILES = ["12345678","123456789","1234567890","11111111","00000000","password","contrasena","qwerty123","abc12345","admin123"];
 function validarFortaleza(pass){
   if (pass.length < 8) return "⚠️ La contraseña debe tener al menos 8 caracteres.";
@@ -53,48 +57,19 @@ function validarFortaleza(pass){
   return null;
 }
 
-/* ADMIN SIN CONTRASEÑA PREDETERMINADA: solo se guarda el hash.
-   La primera vez que alguien entra con admin@veloce.com, el sistema
-   obliga a crear la contraseña (no viaja ni existe en texto plano). */
+/* Semilla del admin: crea la cuenta con el hash de la clave codificada.
+   Si por alguna versión previa el admin quedó sin hash, lo repara. */
 async function seedAdmin(){
   const users = getUsers();
-  if (!users.find(u => u.email === "admin@veloce.com")){
-    users.push({ id:"u-admin", nombre:"Administrador Veloce", email:"admin@veloce.com", passHash:null, rol:"administrador", activo:true, debeConfigurarClave:true });
+  const hashDefault = await hashPass(atob(ADMIN_CLAVE_B64));
+  const admin = users.find(u => u.email === "admin@veloce.com");
+  if (!admin){
+    users.push({ id:"u-admin", nombre:"Administrador Veloce", email:"admin@veloce.com", passHash: hashDefault, rol:"administrador", activo:true });
+    saveUsers(users);
+  } else if (admin.passHash === null){
+    admin.passHash = hashDefault;
     saveUsers(users);
   }
-}
-
-function abrirConfigClaveAdmin(email){
-  abrirModal("🔐 Configurar contraseña de administrador", `
-    <p style="font-size:.9rem;color:#5B6472;margin-bottom:14px;">Por seguridad, el sistema <strong>no trae contraseña predeterminada</strong>. Crea la contraseña de <strong>${email}</strong>: se guardará únicamente como hash SHA-256 + salt (RNF-05).</p>
-    <div class="form-group"><label>Nueva contraseña (mín. 8 caracteres, letra y número)</label><input type="password" id="admin-new-pass" placeholder="••••••••"></div>
-    <div class="form-group"><label>Confirmar contraseña</label><input type="password" id="admin-new-pass2" placeholder="••••••••"></div>
-    <p id="admin-pass-msg" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;font-size:.88rem;font-weight:600;"></p>
-    <button type="button" class="btn" style="width:100%;margin-top:10px;" onclick="guardarClaveAdmin('${email}')">💾 Guardar e iniciar sesión</button>
-  `);
-}
-function mostrarMsgAdmin(texto){
-  const el = $("admin-pass-msg"); if (!el) return;
-  el.textContent = texto;
-  el.style.display = "block";
-  el.style.background = "var(--bad-bg)";
-  el.style.color = "var(--bad)";
-}
-async function guardarClaveAdmin(email){
-  const p1 = $("admin-new-pass").value, p2 = $("admin-new-pass2").value;
-  const err = validarFortaleza(p1);
-  if (err) return mostrarMsgAdmin(err);
-  if (p1 !== p2) return mostrarMsgAdmin("⚠️ Las contraseñas no coinciden.");
-  const users = getUsers();
-  const u = users.find(x => x.email === email);
-  u.passHash = await hashPass(p1);
-  u.debeConfigurarClave = false;
-  saveUsers(users);
-  cerrarModal();
-  setSession({ id:u.id, nombre:u.nombre, email:u.email, rol:u.rol });
-  migrarCarritoInvitado(u.id);
-  alert("✅ Contraseña configurada y almacenada como hash SHA-256. Sesión iniciada.");
-  location.href = "index.html";
 }
 
 /* RF-13 + RF-14 con política de contraseña fuerte */
@@ -115,10 +90,6 @@ async function iniciarSesion(email, pass){
   const user = getUsers().find(u => u.email === email);
   if (!user) return "⚠️ No existe una cuenta con este correo.";
   if (!user.activo) return "⚠️ Tu cuenta está desactivada. Contacta a soporte.";
-  if (user.passHash === null){
-    abrirConfigClaveAdmin(user.email);
-    return "🔐 Cuenta sin contraseña configurada: créala en la ventana que se abrió.";
-  }
   if (await hashPass(pass) !== user.passHash) return "⚠️ Contraseña incorrecta. Inténtalo de nuevo.";
   setSession({ id:user.id, nombre:user.nombre, email:user.email, rol:user.rol });
   migrarCarritoInvitado(user.id);
