@@ -69,7 +69,8 @@ BikeStore/
 
 ## 👤 Autor
 
-**[Tu Nombre Completo]** — Programa de formación en Desarrollo de Software
+Joan Esteban Bermúdez - Jan Pool Ramos - Johan Manuel Vasquez
+— Programa de formación en Desarrollo de Software
 SENA — Regional [Tu Regional] · 2026
 GitHub: [@joaovasquez685-cmd](https://github.com/joaovasquez685-cmd)
 
