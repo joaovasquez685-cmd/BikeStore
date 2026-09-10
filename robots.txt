@@ -1,0 +1,6 @@
+# Reglas para los robots de los buscadores (Googlebot, Bingbot...)
+User-agent: *
+Allow: /
+
+# Ubicación del mapa del sitio
+Sitemap: https://TU-USUARIO.github.io/veloce-bikes/sitemap.xml

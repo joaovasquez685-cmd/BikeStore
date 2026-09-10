@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tablero de control de Veloce Bikes: ventas, pedidos, productos más vendidos e informes exportables.">
+  <title>Dashboard e Informes | Veloce Bikes</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:24px 0}
+    .kpi-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--sh-1)}
+    .kpi-card small{display:block;color:var(--ink-soft);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .kpi-card b{font-family:var(--font-d);font-size:1.7rem;font-weight:800;color:var(--ink)}
+    .kpi-card b.accent{color:var(--accent)}
+    .dash-filters{display:flex;gap:12px;flex-wrap:wrap;align-items:end;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:8px}
+    .dash-filters label{display:block;font-size:.75rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    .dash-filters input,.dash-filters select{padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+    .dash-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px}
+    @media(min-width:900px){.dash-grid{grid-template-columns:1fr 1fr}}
+    .dash-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--sh-1);margin-bottom:16px}
+    .dash-card h3{font-size:1.05rem;margin-bottom:16px}
+    .bar-row{margin-bottom:14px}
+    .bar-label{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-bottom:6px}
+    .bar-label small{color:var(--ink-soft)}
+    .bar-track{height:10px;border-radius:99px;background:var(--bg);overflow:hidden}
+    .bar-fill{height:100%;border-radius:99px;background:var(--grad)}
+    .dash-empty{color:var(--ink-soft);font-size:.9rem;text-align:center;padding:20px}
+    #alertas{list-style:none;display:grid;gap:8px}
+    #alertas li{padding:10px 14px;border-radius:10px;background:var(--bg);font-size:.9rem}
+    .dash-table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}
+    .dash-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:700px}
+    .dash-table th,.dash-table td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line)}
+    .dash-table th{background:#FBFCFD;color:var(--ink-soft);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+    .dash-table tr:last-child td{border-bottom:none}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--ok-bg);color:var(--ok);font-size:.72rem;font-weight:700}
+    .dash-actions{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 48px}
+    .denied{max-width:520px;margin:60px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:24px;padding:48px 32px;box-shadow:var(--sh-2)}
+    @media print{
+      .header,.footer,.dash-filters,.dash-actions,.no-print{display:none !important}
+      body{background:#fff}
+      .kpi-card,.dash-card,.dash-table-wrap{box-shadow:none;border:1px solid #bbb;break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo" aria-label="Veloce Bikes - Inicio">
+        <span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span>
+        Veloce
+      </a>
+      <nav class="nav" aria-label="Navegación principal">
+        <ul class="nav__list">
+          <li><a href="index.html" class="nav__link">Inicio</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="admin.html" class="nav__link">Panel</a></li>
+          <li><a href="carrito.html" class="cart-icon" aria-label="Ver carrito de compras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span id="cart-count" class="cart-count">0</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- RF-30: acceso solo administradores -->
+    <div id="admin-denied" class="denied" hidden>
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="margin:12px 0 8px;">Acceso restringido</h2>
+      <p style="color:#5B6472;">El tablero de control es exclusivo del rol <strong>administrador</strong>.</p>
+      <a href="login.html" class="btn" style="margin-top:20px;">Iniciar sesión</a>
+    </div>
+
+    <div id="admin-content" hidden>
+      <h1 style="margin:40px 0 4px;font-size:2.2rem;letter-spacing:-.02em;">Tablero de Control</h1>
+      <p style="color:#5B6472;">Métricas de la operación comercial (RF-21 a RF-26). Los datos provienen de los pedidos reales de la tienda.</p>
+
+      <!-- RF-25: filtros por fechas y categorías -->
+      <div class="dash-filters no-print">
+        <div><label for="f-desde">Desde</label><input type="date" id="f-desde"></div>
+        <div><label for="f-hasta">Hasta</label><input type="date" id="f-hasta"></div>
+        <div><label for="f-cat">Categoría</label>
+          <select id="f-cat">
+            <option value="">Todas</option>
+            <option value="montaña">Montaña</option><option value="ruta">Ruta</option><option value="urbana">Urbana</option>
+            <option value="eléctrica">Eléctrica</option><option value="bmx">BMX</option><option value="infantil">Infantil</option>
+          </select>
+        </div>
+        <button class="btn btn--ghost" onclick="limpiarFiltrosDash()">Limpiar filtros</button>
+      </div>
+
+      <!-- RF-21, RF-22, RF-24: métricas -->
+      <div class="kpi-grid">
+        <div class="kpi-card"><small>Ventas totales (RF-22)</small><b class="accent" id="kpi-ventas">$0</b></div>
+        <div class="kpi-card"><small>Cantidad de pedidos (RF-24)</small><b id="kpi-pedidos">0</b></div>
+        <div class="kpi-card"><small>Unidades vendidas</small><b id="kpi-unidades">0</b></div>
+        <div class="kpi-card"><small>Ticket promedio</small><b id="kpi-ticket">$0</b></div>
+      </div>
+
+      <div class="dash-grid">
+        <!-- RF-23 -->
+        <section class="dash-card" style="margin-bottom:0;">
+          <h3>🏆 Productos más vendidos (RF-23)</h3>
+          <div id="top-productos"></div>
+        </section>
+        <section class="dash-card" style="margin-bottom:0;">
+          <h3>🗂️ Ingresos por categoría</h3>
+          <div id="ventas-categoria"></div>
+        </section>
+      </div>
+
+      <!-- RF-21: alertas -->
+      <section class="dash-card">
+        <h3>🔔 Alertas de la operación</h3>
+        <ul id="alertas"></ul>
+      </section>
+
+      <!-- Detalle de pedidos filtrados -->
+      <section class="dash-card">
+        <h3>🧾 Pedidos del período</h3>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead><tr><th>N° Pedido</th><th>Fecha</th><th>Cliente</th><th>Ítems</th><th>Total</th><th>Estado</th></tr></thead>
+            <tbody id="pedidos-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RF-26: exportación -->
+      <div class="dash-actions no-print">
+        <button class="btn" onclick="exportarExcel()">⬇️ Exportar a Excel (CSV)</button>
+        <button class="btn btn--ghost" onclick="exportarPDF()">🖨️ Exportar a PDF</button>
+        <a class="btn btn--ghost" href="admin.html">← Volver al panel</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__bottom" style="border:none;margin:0;"><p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p><p>Informes gerenciales · Solo administradores</p></div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let ultimoCalculo = null;
+
+    function leerFiltros(){
+      return {
+        desde: $("f-desde").value ? new Date($("f-desde").value + "T00:00:00") : null,
+        hasta: $("f-hasta").value ? new Date($("f-hasta").value + "T23:59:59") : null,
+        cat: $("f-cat").value
+      };
+    }
+    function limpiarFiltrosDash(){
+      $("f-desde").value = ""; $("f-hasta").value = ""; $("f-cat").value = "";
+      renderDashboard();
+    }
+
+    /* RF-25: pedidos recortados por fecha y categoría */
+    function pedidosConFiltro(f){
+      return getOrders().map(p => {
+        const fecha = new Date(p.fecha);
+        if (f.desde && fecha < f.desde) return null;
+        if (f.hasta && fecha > f.hasta) return null;
+        if (!f.cat) return p;
+        const items = p.items.filter(i => i.categoria === f.cat);
+        if (!items.length) return null;
+        const subtotal = items.reduce((s, i) => s + i.precio * i.cantidad, 0);
+        return { ...p, items, subtotal, total: subtotal };
+      }).filter(Boolean);
+    }
+
+    function calcularDashboard(){
+      const f = leerFiltros();
+      const pedidos = pedidosConFiltro(f);
+      const ventas = pedidos.reduce((s, p) => s + p.total, 0);
+      const unidades = pedidos.reduce((s, p) => s + p.items.reduce((x, i) => x + i.cantidad, 0), 0);
+      const ticket = pedidos.length ? ventas / pedidos.length : 0;
+
+      const mapa = {};
+      pedidos.forEach(p => p.items.forEach(i => {
+        mapa[i.id] = mapa[i.id] || { nombre:i.nombre, unidades:0, ingresos:0 };
+        mapa[i.id].unidades += i.cantidad;
+        mapa[i.id].ingresos += i.cantidad * i.precio;
+      }));
+      const top = Object.values(mapa).sort((a, b) => b.unidades - a.unidades).slice(0, 5);
+
+      const catMapa = {};
+      pedidos.forEach(p => p.items.forEach(i => {
+        const c = i.categoria || "otro";
+        catMapa[c] = (catMapa[c] || 0) + i.cantidad * i.precio;
+      }));
+
+      const alertas = [];
+      getAllProducts().forEach(p => {
+        if (p.activo === false) return;
+        if (p.stock <= 3) alertas.push(`⚠️ Stock bajo: ${p.nombre} — quedan ${p.stock} unidades. Considera reabastecer.`);
+        (p.stockPorColor || []).forEach((s, idx) => {
+          if (s === 0) alertas.push(`🚫 Sin existencias: color ${p.nombresColores[idx]} de ${p.nombre}.`);
+        });
+      });
+      const hace7 = Date.now() - 7 * 86400000;
+      const recientes = getOrders().filter(p => new Date(p.fecha).getTime() >= hace7).length;
+      alertas.push(`📦 Actividad reciente: ${recientes} pedido(s) en los últimos 7 días.`);
+
+      return { f, pedidos, ventas, unidades, ticket, top, catMapa, alertas };
+    }
+
+    function renderDashboard(){
+      const d = calcularDashboard();
+      ultimoCalculo = d;
+
+      $("kpi-ventas").textContent = fmt(d.ventas);
+      $("kpi-pedidos").textContent = d.pedidos.length;
+      $("kpi-unidades").textContent = d.unidades;
+      $("kpi-ticket").textContent = fmt(Math.round(d.ticket));
+
+      /* RF-23 */
+      $("top-productos").innerHTML = d.top.length ? d.top.map(t => `
+        <div class="bar-row">
+          <div class="bar-label"><strong>${t.nombre}</strong><small>${t.unidades} u. · ${fmt(t.ingresos)}</small></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(t.unidades / d.top[0].unidades * 100)}%"></div></div>
+        </div>`).join("") : `<p class="dash-empty">Sin ventas en el rango seleccionado.</p>`;
+
+      const cats = Object.entries(d.catMapa).sort((a, b) => b[1] - a[1]);
+      const maxCat = cats.length ? cats[0][1] : 0;
+      $("ventas-categoria").innerHTML = cats.length ? cats.map(([c, v]) => `
+        <div class="bar-row">
+          <div class="bar-label"><strong>${CAT_NOMBRES[c] || c}</strong><small>${fmt(v)}</small></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxCat * 100)}%"></div></div>
+        </div>`).join("") : `<p class="dash-empty">Sin datos para el filtro actual.</p>`;
+
+      $("alertas").innerHTML = d.alertas.map(a => `<li>${a}</li>`).join("");
+
+      $("pedidos-table").innerHTML = d.pedidos.length ? d.pedidos.slice().reverse().map(p => `
+        <tr>
+          <td><strong>${p.id}</strong></td>
+          <td>${new Date(p.fecha).toLocaleString("es-CO", { dateStyle:"medium", timeStyle:"short" })}</td>
+          <td>${p.usuarioNombre}</td>
+          <td>${p.items.reduce((s, i) => s + i.cantidad, 0)} u. (${p.items.length} ítem)</td>
+          <td><strong>${fmt(p.total)}</strong></td>
+          <td><span class="tag">${p.estado}</span></td>
+        </tr>`).join("") : `<tr><td colspan="6" style="text-align:center;padding:24px;color:#5B6472;">No hay pedidos en el rango seleccionado. Haz una compra de prueba para generar datos.</td></tr>`;
+    }
+
+    /* RF-26: exportar a Excel (CSV compatible con Excel en español) */
+    function exportarExcel(){
+      const d = ultimoCalculo;
+      if (!d || !d.pedidos.length){ alert("⚠️ No hay datos para exportar con los filtros actuales."); return; }
+      const rows = [["Pedido","Fecha","Cliente","Email","Producto","Categoria","Talla","Color","Cantidad","PrecioUnitario","Parcial","TotalPedido","Estado"]];
+      d.pedidos.forEach(p => p.items.forEach(i => {
+        rows.push([p.id, new Date(p.fecha).toLocaleString("es-CO"), p.usuarioNombre, p.email, i.nombre,
+          i.categoria || "", i.talla, i.color, i.cantidad, i.precio, i.precio * i.cantidad, p.total, p.estado]);
+      }));
+      const csv = "\uFEFF" + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
+      const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `informe_ventas_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      alert("✅ Informe descargado. Ábrelo con Excel: las columnas y tildes quedarán perfectas.");
+    }
+
+    /* RF-26: exportar a PDF (impresión del navegador → Guardar como PDF) */
+    function exportarPDF(){ window.print(); }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!requireAdmin()) return;
+      document.getElementById("admin-content").hidden = false;
+      renderDashboard();
+      ["f-desde", "f-hasta", "f-cat"].forEach(id => $(id).addEventListener("change", renderDashboard));
+    });
+  </script>
+</body>
+</html>

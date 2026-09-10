@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Panel de administración de Veloce Bikes: gestión de productos y usuarios.">
+  <title>Panel de Administración | Veloce Bikes</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .admin-tabs{display:flex;gap:8px;margin:24px 0;}
+    .admin-tabs button{padding:12px 22px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-weight:700;cursor:pointer;transition:all .2s}
+    .admin-tabs button.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+    .admin-toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    .admin-toolbar input,.admin-toolbar select{padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff}
+    .admin-table-wrap{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:auto;box-shadow:var(--sh-1);margin-bottom:40px}
+    .admin-table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
+    .admin-table th,.admin-table td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+    .admin-table th{background:#FBFCFD;color:var(--ink-soft);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+    .admin-table tr:last-child td{border-bottom:none}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--bg);color:var(--ink-soft);font-size:.72rem;font-weight:700}
+    .tag--on{background:var(--ok-bg);color:var(--ok)}
+    .tag--off{background:var(--bad-bg);color:var(--bad)}
+    .mini-btn{padding:7px 12px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s}
+    .mini-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+    .denied{max-width:520px;margin:60px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:24px;padding:48px 32px;box-shadow:var(--sh-2)}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo" aria-label="Veloce Bikes - Inicio">
+        <span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span>
+        Veloce
+      </a>
+      <nav class="nav" aria-label="Navegación principal">
+        <ul class="nav__list">
+          <li><a href="index.html" class="nav__link">Inicio</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="carrito.html" class="cart-icon" aria-label="Ver carrito de compras">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span id="cart-count" class="cart-count">0</span></a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- RF-30 / RNF-04: bloqueo para no administradores -->
+    <div id="admin-denied" class="denied" hidden>
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="margin:12px 0 8px;">Acceso restringido</h2>
+      <p style="color:#5B6472;">Esta sección es exclusiva para usuarios con rol <strong>administrador</strong>. Si crees que es un error, inicia sesión con una cuenta autorizada.</p>
+      <a href="login.html" class="btn" style="margin-top:20px;">Iniciar sesión</a>
+    </div>
+
+    <div id="admin-content" hidden>
+      <h1 style="margin:40px 0 4px;font-size:2.2rem;letter-spacing:-.02em;">Panel de Administración</h1>
+      <p style="color:#5B6472;">Gestión de productos (RF-17 a RF-20) y usuarios (RF-27 a RF-31).</p>
+
+      <div class="admin-tabs" role="tablist">
+        <button id="tab-prod" class="active" type="button" onclick="showAdminTab('prod')">📦 Productos</button>
+        <button id="tab-users" type="button" onclick="showAdminTab('users')">👥 Usuarios</button>
+        <button type="button" onclick="location.href='dashboard.html'">📊 Dashboard</button>  
+
+      </div>
+
+      <!-- RF-17 a RF-20 -->
+      <section id="sec-prod" aria-label="Gestión de productos">
+        <div class="admin-toolbar">
+          <input type="search" id="admin-prod-search" placeholder="Buscar por nombre o marca..." aria-label="Buscar productos">
+          <select id="admin-prod-cat" aria-label="Filtrar productos por categoría">
+            <option value="">Todas las categorías</option>
+            <option value="montaña">Montaña</option><option value="ruta">Ruta</option><option value="urbana">Urbana</option>
+            <option value="eléctrica">Eléctrica</option><option value="bmx">BMX</option><option value="infantil">Infantil</option>
+          </select>
+          <button class="btn" onclick="abrirFormProducto(null)">+ Registrar producto</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th></th><th>Producto</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="admin-products-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RF-27 a RF-31 -->
+      <section id="sec-users" hidden aria-label="Gestión de usuarios">
+        <div class="admin-toolbar">
+          <input type="search" id="admin-user-search" placeholder="Buscar por nombre o correo..." aria-label="Buscar usuarios">
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="admin-users-table"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__bottom" style="border:none;margin:0;"><p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p><p>Panel administrativo · Acceso por rol</p></div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function showAdminTab(t){
+      document.getElementById("tab-prod").classList.toggle("active", t === "prod");
+      document.getElementById("tab-users").classList.toggle("active", t === "users");
+      document.getElementById("sec-prod").hidden = t !== "prod";
+      document.getElementById("sec-users").hidden = t !== "users";
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!requireAdmin()) return;
+      document.getElementById("admin-content").hidden = false;
+      renderAdminProducts();
+      renderAdminUsers();
+      document.getElementById("admin-prod-search").addEventListener("input", renderAdminProducts);
+      document.getElementById("admin-prod-cat").addEventListener("change", renderAdminProducts);
+      document.getElementById("admin-user-search").addEventListener("input", renderAdminUsers);
+    });
+  </script>
+</body>
+</html>
