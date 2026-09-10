@@ -1,6 +1,6 @@
-# Reglas para los robots de los buscadores (Googlebot, Bingbot...)
+# Reglas para los robots de los buscadores (Googlebot, Bingbot, etc.)
 User-agent: *
 Allow: /
 
-# Ubicación del mapa del sitio
-Sitemap: https://TU-USUARIO.github.io/veloce-bikes/sitemap.xml
+# Mapa del sitio para indexación rápida
+Sitemap: https://joaovasquez685-cmd.github.io/BikeStore/sitemap.xml
