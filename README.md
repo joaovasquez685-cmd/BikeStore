@@ -7,7 +7,7 @@
 
 **Veloce Bikes** es un e-commerce de bicicletas desarrollado como proyecto formativo del **SENA**, construido 100% con tecnologías web nativas (sin frameworks ni dependencias), enfocado en rendimiento, accesibilidad y SEO técnico.
 
-🔗 **Demo en vivo:** https://TU-USUARIO.github.io/veloce-bikes/
+🔗 **Demo en vivo:** https://joaovasquez685-cmd.github.io/BikeStore/
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## 🗂️ Estructura del proyecto
 
-veloce-bikes/
+BikeStore/
 ├── index.html          # Home: hero, categorías y más vendidas
 ├── catalogo.html       # Catálogo con filtros y comparador
 ├── producto.html       # Ficha de producto dinámica (?id=)
@@ -47,9 +47,9 @@ veloce-bikes/
 
 ## 🌐 Publicación en GitHub Pages
 
-1. Sube el proyecto a un repositorio público llamado `veloce-bikes`.
+1. Sube el proyecto a un repositorio público llamado `BikeStore`.
 2. Ve a **Settings → Pages → Source: Deploy from a branch → main / (root)**.
-3. Tu sitio quedará en `https://TU-USUARIO.github.io/veloce-bikes/`.
+3. Tu sitio quedará en `https://joaovasquez685-cmd.github.io/BikeStore/`.
 
 ##  Decisiones técnicas destacadas
 
@@ -71,6 +71,7 @@ veloce-bikes/
 
 **[Tu Nombre Completo]** — Programa de formación en Desarrollo de Software
 SENA — Regional [Tu Regional] · 2026
+GitHub: [@joaovasquez685-cmd](https://github.com/joaovasquez685-cmd)
 
 ## 📝 Créditos y licencia
 
