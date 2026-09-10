@@ -1,4 +1,4 @@
-/* ========= VELOCE BIKES - app.js (Paso 3: administración) ========= */
+/* ========= VELOCE BIKES - app.js (seguridad reforzada) ========= */
 const CAT_NOMBRES = { montaña:"Montaña", ruta:"Ruta", urbana:"Urbana", eléctrica:"Eléctrica", bmx:"BMX", infantil:"Infantil" };
 const fmt = n => "$" + n.toLocaleString("es-CO");
 const $ = id => document.getElementById(id);
@@ -10,9 +10,7 @@ const RESENAS_DEMO = [
   { autor:"Andrés P.", fecha:"19/05/2026", rating:5, texto:"La guía de tallas acertó exactamente con mi altura. 100% recomendada." }
 ];
 
-/* ============ "BASE DE DATOS" DE PRODUCTOS (RF-17 a RF-20) ============
-   data.js es la SEMILLA; la verdad viva queda en localStorage.
-   El catálogo (global `productos`) solo muestra productos ACTIVOS. */
+/* ============ "BASE DE DATOS" DE PRODUCTOS ============ */
 function initProductsDB(){
   let all = JSON.parse(localStorage.getItem("veloce_products"));
   if (!all){
@@ -26,7 +24,7 @@ function saveAllProducts(all){ localStorage.setItem("veloce_products", JSON.stri
 function getAllProducts(){ return JSON.parse(localStorage.getItem("veloce_products")) || []; }
 initProductsDB();
 
-/* ============ AUTENTICACIÓN (RF-13 a RF-16, RNF-05, RF-08) ============ */
+/* ============ AUTENTICACIÓN SEGURA (RF-13 a RF-16, RNF-05) ============ */
 const USERS_KEY = "veloce_users";
 const SESSION_KEY = "veloce_session";
 
@@ -46,27 +44,81 @@ function getSession(){ return JSON.parse(localStorage.getItem(SESSION_KEY)) || n
 function setSession(s){ s ? localStorage.setItem(SESSION_KEY, JSON.stringify(s)) : localStorage.removeItem(SESSION_KEY); }
 function emailValido(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email); }
 
+/* Bloqueo de contraseñas débiles / filtradas (aviso tipo Google) */
+const CONTRASENAS_DEBILES = ["12345678","123456789","1234567890","11111111","00000000","password","contrasena","qwerty123","abc12345","admin123"];
+function validarFortaleza(pass){
+  if (pass.length < 8) return "⚠️ La contraseña debe tener al menos 8 caracteres.";
+  if (CONTRASENAS_DEBILES.includes(pass.toLowerCase())) return "⚠️ Esa contraseña aparece en filtraciones de datos públicas (como 12345678). Elige una más segura.";
+  if (!/[a-zA-Z]/.test(pass) || !/[0-9]/.test(pass)) return "⚠️ La contraseña debe combinar al menos una letra y un número.";
+  return null;
+}
+
+/* ADMIN SIN CONTRASEÑA PREDETERMINADA: solo se guarda el hash.
+   La primera vez que alguien entra con admin@veloce.com, el sistema
+   obliga a crear la contraseña (no viaja ni existe en texto plano). */
 async function seedAdmin(){
   const users = getUsers();
   if (!users.find(u => u.email === "admin@veloce.com")){
-    users.push({ id:"u-admin", nombre:"Administrador Veloce", email:"admin@veloce.com", passHash: await hashPass("Admin123*"), rol:"administrador", activo:true });
+    users.push({ id:"u-admin", nombre:"Administrador Veloce", email:"admin@veloce.com", passHash:null, rol:"administrador", activo:true, debeConfigurarClave:true });
     saveUsers(users);
   }
 }
+
+function abrirConfigClaveAdmin(email){
+  abrirModal("🔐 Configurar contraseña de administrador", `
+    <p style="font-size:.9rem;color:#5B6472;margin-bottom:14px;">Por seguridad, el sistema <strong>no trae contraseña predeterminada</strong>. Crea la contraseña de <strong>${email}</strong>: se guardará únicamente como hash SHA-256 + salt (RNF-05).</p>
+    <div class="form-group"><label>Nueva contraseña (mín. 8 caracteres, letra y número)</label><input type="password" id="admin-new-pass" placeholder="••••••••"></div>
+    <div class="form-group"><label>Confirmar contraseña</label><input type="password" id="admin-new-pass2" placeholder="••••••••"></div>
+    <p id="admin-pass-msg" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;font-size:.88rem;font-weight:600;"></p>
+    <button type="button" class="btn" style="width:100%;margin-top:10px;" onclick="guardarClaveAdmin('${email}')">💾 Guardar e iniciar sesión</button>
+  `);
+}
+function mostrarMsgAdmin(texto){
+  const el = $("admin-pass-msg"); if (!el) return;
+  el.textContent = texto;
+  el.style.display = "block";
+  el.style.background = "var(--bad-bg)";
+  el.style.color = "var(--bad)";
+}
+async function guardarClaveAdmin(email){
+  const p1 = $("admin-new-pass").value, p2 = $("admin-new-pass2").value;
+  const err = validarFortaleza(p1);
+  if (err) return mostrarMsgAdmin(err);
+  if (p1 !== p2) return mostrarMsgAdmin("⚠️ Las contraseñas no coinciden.");
+  const users = getUsers();
+  const u = users.find(x => x.email === email);
+  u.passHash = await hashPass(p1);
+  u.debeConfigurarClave = false;
+  saveUsers(users);
+  cerrarModal();
+  setSession({ id:u.id, nombre:u.nombre, email:u.email, rol:u.rol });
+  migrarCarritoInvitado(u.id);
+  alert("✅ Contraseña configurada y almacenada como hash SHA-256. Sesión iniciada.");
+  location.href = "index.html";
+}
+
+/* RF-13 + RF-14 con política de contraseña fuerte */
 async function registrarUsuario(nombre, email, pass){
   if (!nombre) return "⚠️ Escribe tu nombre completo.";
   if (!emailValido(email)) return "⚠️ El correo no es válido. Ejemplo correcto: nombre@dominio.com";
   if (getUsers().find(u => u.email === email)) return "⚠️ Ya existe una cuenta registrada con este correo.";
-  if (pass.length < 8) return "⚠️ La contraseña debe tener al menos 8 caracteres.";
+  const err = validarFortaleza(pass);
+  if (err) return err;
   const users = getUsers();
   users.push({ id:"u-" + Date.now(), nombre, email, passHash: await hashPass(pass), rol:"cliente", activo:true });
   saveUsers(users);
   return null;
 }
+
+/* RF-15 */
 async function iniciarSesion(email, pass){
   const user = getUsers().find(u => u.email === email);
   if (!user) return "⚠️ No existe una cuenta con este correo.";
   if (!user.activo) return "⚠️ Tu cuenta está desactivada. Contacta a soporte.";
+  if (user.passHash === null){
+    abrirConfigClaveAdmin(user.email);
+    return "🔐 Cuenta sin contraseña configurada: créala en la ventana que se abrió.";
+  }
   if (await hashPass(pass) !== user.passHash) return "⚠️ Contraseña incorrecta. Inténtalo de nuevo.";
   setSession({ id:user.id, nombre:user.nombre, email:user.email, rol:user.rol });
   migrarCarritoInvitado(user.id);
@@ -74,6 +126,7 @@ async function iniciarSesion(email, pass){
 }
 function cerrarSesion(){ setSession(null); location.reload(); }
 
+/* RF-16 */
 const codigosRecuperacion = {};
 function solicitarRecuperacion(email){
   if (!emailValido(email)) return "⚠️ El correo no es válido.";
@@ -84,7 +137,8 @@ function solicitarRecuperacion(email){
 }
 async function restablecerContrasena(email, code, nuevaPass){
   if (codigosRecuperacion[email] !== code) return "⚠️ El código ingresado no es válido.";
-  if (nuevaPass.length < 8) return "⚠️ La contraseña debe tener al menos 8 caracteres.";
+  const err = validarFortaleza(nuevaPass);
+  if (err) return err;
   const users = getUsers();
   users.find(u => u.email === email).passHash = await hashPass(nuevaPass);
   saveUsers(users);
@@ -191,7 +245,6 @@ function mostrarConfirmacion(pedido){
 }
 
 /* ============ MÓDULO DE ADMINISTRACIÓN ============ */
-/* RF-30 / RNF-04: control de acceso por rol */
 function requireAdmin(){
   const s = getSession();
   if (s && s.rol === "administrador") return true;
@@ -199,8 +252,6 @@ function requireAdmin(){
   const denied = $("admin-denied"); if (denied) denied.hidden = false;
   return false;
 }
-
-/* RF-20: consultar, buscar y filtrar productos */
 function renderAdminProducts(){
   const q = ($("admin-prod-search") ? $("admin-prod-search").value : "").toLowerCase();
   const cat = $("admin-prod-cat") ? $("admin-prod-cat").value : "";
@@ -220,8 +271,6 @@ function renderAdminProducts(){
       </div></td>
     </tr>`).join("") : `<tr><td colspan="6" style="text-align:center;padding:24px;color:#5B6472;">Sin resultados para la búsqueda.</td></tr>`;
 }
-
-/* RF-17 y RF-18: formulario de registro / edición */
 function abrirFormProducto(id){
   const p = id ? getAllProducts().find(x => x.id === id) : null;
   const val = (c, d="") => p ? (p[c] ?? d) : d;
@@ -259,7 +308,6 @@ function abrirFormProducto(id){
     <button class="btn" type="submit" style="width:100%;margin-top:14px;">💾 Guardar producto</button>
   </form>`);
 }
-
 function adminSubmitProducto(ev){
   ev.preventDefault();
   const id = $("pf-id").value || null;
@@ -294,7 +342,6 @@ function adminSubmitProducto(ev){
     }
   };
   if (!datos.nombre || !datos.precio){ alert("⚠️ Nombre y precio son obligatorios."); return; }
-
   const all = getAllProducts();
   if (id){
     Object.assign(all.find(x => x.id === id), datos);
@@ -308,8 +355,6 @@ function adminSubmitProducto(ev){
   renderAdminProducts();
   alert(id ? "✅ Producto actualizado correctamente (RF-18)." : "✅ Producto registrado correctamente (RF-17).");
 }
-
-/* RF-19: inactivar / activar productos */
 function adminToggleProducto(id){
   const all = getAllProducts();
   const p = all.find(x => x.id === id);
@@ -319,8 +364,6 @@ function adminToggleProducto(id){
   renderAdminProducts();
   alert(p.activo ? "✅ Producto activado: vuelve a aparecer en el catálogo." : "🚫 Producto inactivado: ya no aparece en el catálogo (RF-19).");
 }
-
-/* RF-27 y RF-31: listado y búsqueda de usuarios */
 function renderAdminUsers(){
   const q = ($("admin-user-search") ? $("admin-user-search").value : "").toLowerCase();
   const lista = getUsers().filter(u => !q || u.nombre.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
@@ -336,8 +379,6 @@ function renderAdminUsers(){
       </div></td>
     </tr>`).join("") : `<tr><td colspan="5" style="text-align:center;padding:24px;color:#5B6472;">Sin resultados.</td></tr>`;
 }
-
-/* RF-28: asignar roles */
 function adminToggleRol(id){
   const us = getUsers();
   const u = us.find(x => x.id === id);
@@ -347,8 +388,6 @@ function adminToggleRol(id){
   renderAdminUsers();
   alert(`✅ Ahora ${u.nombre} tiene rol: ${u.rol}.`);
 }
-
-/* RF-29: activar / desactivar cuentas */
 function adminToggleUsuario(id){
   const us = getUsers();
   const u = us.find(x => x.id === id);
