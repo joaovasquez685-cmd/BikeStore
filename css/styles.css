@@ -396,3 +396,38 @@ input[type="date"]::-webkit-calendar-picker-indicator{width:17px;height:17px;cur
 @media (prefers-reduced-motion: reduce){
   *{animation:none !important;transition:none !important;scroll-behavior:auto !important}
 }
+
+/* =====================================================
+   HEADER 100% RESPONSIVE: nada queda fuera de pantalla
+   (móvil y tablet: el menú baja a segunda línea con wrap)
+===================================================== */
+@media (max-width: 900px){
+  .header__inner{
+    flex-wrap:wrap;
+    height:auto;
+    padding:10px 0;
+    row-gap:6px;
+  }
+  .nav{
+    width:100%;
+    min-width:0;
+  }
+  .nav__list{
+    flex-wrap:wrap;
+    justify-content:flex-start;
+    gap:8px 16px;
+  }
+  .nav__link{font-size:.86rem}
+  .nav__link::after{display:none}
+}
+
+@media (max-width: 480px){
+  .header__inner{padding:8px 0}
+  .nav__list{gap:8px 12px}
+  .nav__link{font-size:.8rem}
+  .nav__list > li:last-child{gap:6px !important;font-size:.74rem !important}
+  .nav__list > li:last-child span:first-child{display:none}
+  .cart-icon{width:36px;height:36px;border-radius:10px}
+  .cart-icon svg{width:17px;height:17px}
+  .cart-count{min-width:16px;height:16px;font-size:.62rem}
+}
