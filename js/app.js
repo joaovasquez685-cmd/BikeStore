@@ -115,11 +115,16 @@ function generarResenas(p){
 }
 
 /* ============ "BASE DE DATOS" DE PRODUCTOS ============ */
+const PRODUCTS_DB_VERSION = "v50-2026-09-14";
 function initProductsDB(){
-  let all = JSON.parse(localStorage.getItem("veloce_products"));
-  if (!all){
+  let all = JSON.parse(localStorage.getItem("veloce_products") || "null");
+  const ver = localStorage.getItem("veloce_products_ver");
+  /* Si no hay catálogo guardado, cambió la versión, o el guardado tiene
+     menos productos que la semilla actual → se reconstruye desde data.js */
+  if (!all || ver !== PRODUCTS_DB_VERSION || all.length < productos.length){
     all = productos.map(p => ({ ...p, activo:true }));
     localStorage.setItem("veloce_products", JSON.stringify(all));
+    localStorage.setItem("veloce_products_ver", PRODUCTS_DB_VERSION);
   }
   productos.length = 0;
   all.filter(p => p.activo !== false).forEach(p => productos.push(p));
