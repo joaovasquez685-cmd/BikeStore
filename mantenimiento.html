@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Servicio técnico y mantenimiento para bicicletas Veloce Bikes. Agenda tu cita, describe el problema y descarga tu recibo en PDF.">
+  <title>Mantenimiento | Veloce Bikes</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5.5" cy="17.5" r="3.5"/>
+            <circle cx="18.5" cy="17.5" r="3.5"/>
+            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </span>
+        <span>Veloce</span>
+      </a>
+
+      <nav class="nav">
+        <ul class="nav__list">
+          <li><a href="index.html" class="nav__link">Inicio</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="accesorios.html" class="nav__link">Accesorios</a></li>
+          <li><a href="mantenimiento.html" class="nav__link" aria-current="page">Mantenimiento</a></li>
+          <li>
+            <a href="carrito.html" class="cart-icon" aria-label="Ver carrito">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="cart-count" id="cart-count">0</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero maintenance-hero">
+      <div class="hero__media">
+        <img
+          src="https://image.qwenlm.ai/public_source/b4c07f46-da6d-4994-8e44-17a62f72ae34/541e31e99-324a-4a79-9598-51761e42764f4406.png"
+          alt="Taller de mantenimiento para bicicletas Veloce Bikes"
+          loading="eager"
+          onerror="this.onerror=null;this.src='img/placeholder.svg'">
+      </div>
+      <div class="hero__overlay"></div>
+
+      <div class="container hero__content">
+        <span class="eyebrow"><span class="dot"></span> Servicio técnico especializado</span>
+        <h1>Tu bici siempre lista para <span class="accent">rodar</span></h1>
+        <p class="lead">
+          Agenda mantenimiento básico, completo, reparación mayor o diagnóstico técnico.
+          Al confirmar tu cita recibirás un recibo en PDF con todos los detalles.
+        </p>
+        <div class="hero__cta">
+          <a href="#agendar" class="btn btn--lg">Agendar cita</a>
+          <a href="#servicios" class="btn btn--ghost-light">Ver servicios</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICIOS (tarjetas seleccionables) -->
+    <section id="servicios" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Planes de mantenimiento</span>
+            <h2>Elige el servicio que necesita tu bicicleta</h2>
+            <p style="color:var(--ink-soft);margin-top:8px;">
+              Haz clic en una tarjeta para seleccionarla. Los precios son estimados.
+            </p>
+          </div>
+        </div>
+
+        <div class="services-grid">
+          <article class="service-card" onclick="seleccionarServicio('basico', this)">
+            <div class="service-card__icon">🔧</div>
+            <h3>Mantenimiento Básico</h3>
+            <p>Ideal para bicicletas con uso normal que necesitan ajuste general.</p>
+            <ul class="service-list">
+              <li>✅ Ajuste de frenos</li>
+              <li>✅ Ajuste de cambios</li>
+              <li>✅ Lubricación de cadena</li>
+              <li>✅ Revisión de presión</li>
+              <li>✅ Revisión rápida de tornillería</li>
+            </ul>
+            <div class="service-card__price">
+              <span class="price-from">Desde</span>
+              <span class="price-value">$45.000</span>
+            </div>
+            <a href="#agendar" class="btn">Agendar</a>
+          </article>
+
+          <article class="service-card" onclick="seleccionarServicio('completo', this)">
+            <span class="badge--popular">Popular</span>
+            <div class="service-card__icon">⚙️</div>
+            <h3>Mantenimiento Completo</h3>
+            <p>Servicio recomendado para bicicletas con uso frecuente o rutas largas.</p>
+            <ul class="service-list">
+              <li>✅ Todo lo del básico</li>
+              <li>✅ Limpieza profunda</li>
+              <li>✅ Ajuste de rodamientos</li>
+              <li>✅ Centrado básico de ruedas</li>
+              <li>✅ Revisión de transmisión</li>
+            </ul>
+            <div class="service-card__price">
+              <span class="price-from">Desde</span>
+              <span class="price-value">$95.000</span>
+            </div>
+            <a href="#agendar" class="btn">Agendar</a>
+          </article>
+
+          <article class="service-card" onclick="seleccionarServicio('mayor', this)">
+            <div class="service-card__icon">🛠️</div>
+            <h3>Reparación Mayor</h3>
+            <p>Para bicicletas con fallas, golpes, piezas dañadas o problemas mecánicos.</p>
+            <ul class="service-list">
+              <li>✅ Diagnóstico detallado</li>
+              <li>✅ Cambio de componentes</li>
+              <li>✅ Revisión de suspensión</li>
+              <li>✅ Revisión de frenos</li>
+              <li>✅ Cotización de repuestos</li>
+            </ul>
+            <div class="service-card__price">
+              <span class="price-from">Desde</span>
+              <span class="price-value">$150.000</span>
+            </div>
+            <a href="#agendar" class="btn">Agendar</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDAR -->
+    <section id="agendar" class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Agenda tu cita</span>
+            <h2>Reserva tu mantenimiento</h2>
+            <p style="color:var(--ink-soft);margin-top:8px;">
+              Completa el formulario. Al confirmar podrás descargar tu recibo en PDF.
+            </p>
+          </div>
+        </div>
+
+        <div class="booking-layout">
+          <div class="booking-form-card">
+            <form id="form-cita" class="booking-form" onsubmit="guardarCita(event)">
+              <div class="form-section">
+                <h3>👤 Datos del cliente</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="nombre">Nombre completo *</label>
+                    <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="telefono">Teléfono *</label>
+                    <input type="tel" id="telefono" required placeholder="Ej: 3001234567">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" placeholder="Ej: correo@dominio.com">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ciudad">Ciudad</label>
+                    <input type="text" id="ciudad" placeholder="Ej: Palmira">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>🚲 Datos de la bicicleta</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="tipo-bici">Tipo de bicicleta *</label>
+                    <select id="tipo-bici" required>
+                      <option value="">Selecciona una opción</option>
+                      <option value="Montaña">Montaña</option>
+                      <option value="Ruta">Ruta</option>
+                      <option value="Urbana">Urbana</option>
+                      <option value="Eléctrica">Eléctrica</option>
+                      <option value="BMX">BMX</option>
+                      <option value="Infantil">Infantil</option>
+                      <option value="Otra">Otra</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="marca-bici">Marca / Modelo</label>
+                    <input type="text" id="marca-bici" placeholder="Ej: Veloce Trailblazer X1">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top:16px;">
+                  <label for="descripcion">Describe el problema o solicitud</label>
+                  <textarea id="descripcion" rows="4" placeholder="Ej: los cambios saltan, los frenos suenan, necesita limpieza, etc."></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>🧰 Servicio requerido</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="tipo-servicio">Tipo de servicio *</label>
+                    <select id="tipo-servicio" required onchange="actualizarResumen()">
+                      <option value="">Selecciona un servicio</option>
+                      <option value="basico">Mantenimiento Básico - $45.000</option>
+                      <option value="completo">Mantenimiento Completo - $95.000</option>
+                      <option value="mayor">Reparación Mayor - desde $150.000</option>
+                      <option value="diagnostico">Solo Diagnóstico - $25.000</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="urgencia">Urgencia</label>
+                    <select id="urgencia" onchange="actualizarResumen()">
+                      <option value="normal">Normal</option>
+                      <option value="prioritario">Prioritario + $20.000</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="extra-limpieza" onchange="actualizarResumen()">
+                    Limpieza profunda adicional + $30.000
+                  </label>
+
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="extra-recogida" onchange="actualizarResumen()">
+                    Recogida a domicilio + $25.000
+                  </label>
+
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="extra-entrega" onchange="actualizarResumen()">
+                    Entrega a domicilio + $25.000
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3>📅 Fecha y hora</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="fecha">Fecha preferida *</label>
+                    <input type="date" id="fecha" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="hora">Hora preferida *</label>
+                    <select id="hora" required>
+                      <option value="">Selecciona una hora</option>
+                      <option value="08:00">08:00 a.m.</option>
+                      <option value="09:00">09:00 a.m.</option>
+                      <option value="10:00">10:00 a.m.</option>
+                      <option value="11:00">11:00 a.m.</option>
+                      <option value="14:00">02:00 p.m.</option>
+                      <option value="15:00">03:00 p.m.</option>
+                      <option value="16:00">04:00 p.m.</option>
+                      <option value="17:00">05:00 p.m.</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="booking-summary">
+                <h3>Resumen de la cita</h3>
+                <div class="resumen-content" id="resumen-cita">
+                  <p class="resumen-empty">Selecciona un servicio para ver el resumen.</p>
+                </div>
+                <div class="resumen-total">
+                  <span>Total estimado:</span>
+                  <strong id="total-estimado">$0</strong>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn--lg btn--full" style="margin-top:24px;">
+                Confirmar cita
+              </button>
+            </form>
+          </div>
+
+          <aside class="booking-info">
+            <div class="info-card">
+              <h3>🕒 Horarios de atención</h3>
+              <ul class="hours-list">
+                <li><strong>Lunes a viernes:</strong> 8:00 a.m. - 6:00 p.m.</li>
+                <li><strong>Sábados:</strong> 8:00 a.m. - 2:00 p.m.</li>
+                <li><strong>Domingos:</strong> Cerrado</li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <h3>✅ Beneficios</h3>
+              <ul class="benefits-list">
+                <li>Revisión técnica profesional</li>
+                <li>Garantía sobre mano de obra</li>
+                <li>Repuestos cotizados antes de instalar</li>
+                <li>Recibo en PDF al confirmar tu cita</li>
+              </ul>
+            </div>
+
+            <div class="info-card info-card--accent">
+              <h3>¿También necesitas accesorios?</h3>
+              <p>Tenemos cascos, luces, guantes, herramientas y componentes para complementar tu bici.</p>
+              <a href="accesorios.html" class="btn btn--light">Ver accesorios</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="index.html" class="logo">
+            <span class="logo__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="5.5" cy="17.5" r="3.5"/>
+                <circle cx="18.5" cy="17.5" r="3.5"/>
+                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
+            </span>
+            <span>Veloce</span>
+          </a>
+          <p>Tecnología y pasión sobre dos ruedas. Proyecto formativo SENA.</p>
+        </div>
+
+        <div class="footer__col">
+          <h3>Tienda</h3>
+          <ul>
+            <li><a href="catalogo.html">Catálogo completo</a></li>
+            <li><a href="accesorios.html">Accesorios</a></li>
+            <li><a href="mantenimiento.html">Mantenimiento</a></li>
+            <li><a href="carrito.html">Mi carrito</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Ayuda</h3>
+          <ul>
+            <li><a href="#" onclick="abrirGuiaTallas(); return false;">Guía de tallas</a></li>
+            <li><a href="#">Política de envíos</a></li>
+            <li><a href="#">Garantía y devoluciones</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Únete al pelotón</h3>
+          <p>Ofertas y guías de mantenimiento una vez al mes.</p>
+          <form class="newsletter" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+            <input type="email" placeholder="tu@email.com" required>
+            <button type="submit" class="btn">Suscribirme</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer__pay">
+        <span>Métodos de pago:</span>
+        <span class="pay-pill">VISA</span>
+        <span class="pay-pill">PSE</span>
+        <span class="pay-pill">nequi</span>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p>
+        <p>Hecho con HTML, CSS y JS puros · Cero dependencias</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    const preciosServicios = {
+      basico: 45000,
+      completo: 95000,
+      mayor: 150000,
+      diagnostico: 25000
+    };
+
+    const nombresServicios = {
+      basico: "Mantenimiento Básico",
+      completo: "Mantenimiento Completo",
+      mayor: "Reparación Mayor",
+      diagnostico: "Solo Diagnóstico"
+    };
+
+    function fmtLocal(n){
+      return "$" + Number(n).toLocaleString("es-CO");
+    }
+
+    /* Marca visualmente la tarjeta escogida y preselecciona el servicio */
+    function seleccionarServicio(servicio, tarjeta){
+      document.querySelectorAll('.service-card').forEach(t => t.classList.remove('is-selected'));
+      tarjeta.classList.add('is-selected');
+      const select = document.getElementById("tipo-servicio");
+      if (select) {
+        select.value = servicio;
+        actualizarResumen();
+      }
+    }
+
+    function calcularTotal(){
+      const servicio = document.getElementById("tipo-servicio").value;
+      let total = preciosServicios[servicio] || 0;
+
+      if (document.getElementById("urgencia").value === "prioritario") total += 20000;
+      if (document.getElementById("extra-limpieza").checked) total += 30000;
+      if (document.getElementById("extra-recogida").checked) total += 25000;
+      if (document.getElementById("extra-entrega").checked) total += 25000;
+
+      return total;
+    }
+
+    function actualizarResumen(){
+      const servicio = document.getElementById("tipo-servicio").value;
+      const resumen = document.getElementById("resumen-cita");
+      const totalEl = document.getElementById("total-estimado");
+
+      if (!servicio) {
+        resumen.innerHTML = '<p class="resumen-empty">Selecciona un servicio para ver el resumen.</p>';
+        totalEl.textContent = "$0";
+        return;
+      }
+
+      const extras = [];
+      if (document.getElementById("urgencia").value === "prioritario") extras.push("Atención prioritaria");
+      if (document.getElementById("extra-limpieza").checked) extras.push("Limpieza profunda adicional");
+      if (document.getElementById("extra-recogida").checked) extras.push("Recogida a domicilio");
+      if (document.getElementById("extra-entrega").checked) extras.push("Entrega a domicilio");
+
+      const total = calcularTotal();
+
+      resumen.innerHTML = `
+        <p><strong>Servicio:</strong> ${nombresServicios[servicio]}</p>
+        <p><strong>Precio base:</strong> ${fmtLocal(preciosServicios[servicio])}</p>
+        ${extras.length ? `<p><strong>Extras:</strong> ${extras.join(", ")}</p>` : `<p><strong>Extras:</strong> Ninguno</p>`}
+        <small>El valor final puede variar si se requieren repuestos.</small>
+      `;
+
+      totalEl.textContent = fmtLocal(total);
+    }
+
+    function obtenerCitas(){
+      return JSON.parse(localStorage.getItem("veloce_citas") || "[]");
+    }
+
+    function guardarCitas(citas){
+      localStorage.setItem("veloce_citas", JSON.stringify(citas));
+    }
+
+    function guardarCita(event){
+      event.preventDefault();
+
+      const servicio = document.getElementById("tipo-servicio").value;
+      const fecha = document.getElementById("fecha").value;
+      const hora = document.getElementById("hora").value;
+
+      if (!servicio) {
+        alert("⚠️ Selecciona un tipo de servicio.");
+        return;
+      }
+
+      if (!fecha || !hora) {
+        alert("⚠️ Selecciona fecha y hora para la cita.");
+        return;
+      }
+
+      const citas = obtenerCitas();
+
+      const citaDuplicada = citas.find(c => c.fechaPreferida === fecha && c.hora === hora && c.estado !== "cancelada");
+      if (citaDuplicada) {
+        alert("⚠️ Ya existe una cita agendada en esa fecha y hora. Por favor elige otro horario.");
+        return;
+      }
+
+      const extras = [];
+      if (document.getElementById("urgencia").value === "prioritario") extras.push("Atención prioritaria");
+      if (document.getElementById("extra-limpieza").checked) extras.push("Limpieza profunda adicional");
+      if (document.getElementById("extra-recogida").checked) extras.push("Recogida a domicilio");
+      if (document.getElementById("extra-entrega").checked) extras.push("Entrega a domicilio");
+
+      const nuevaCita = {
+        id: "CT-" + Date.now(),
+        fechaRegistro: new Date().toISOString(),
+        nombre: document.getElementById("nombre").value.trim(),
+        telefono: document.getElementById("telefono").value.trim(),
+        correo: document.getElementById("correo").value.trim(),
+        ciudad: document.getElementById("ciudad").value.trim(),
+        tipoBici: document.getElementById("tipo-bici").value,
+        marcaBici: document.getElementById("marca-bici").value.trim(),
+        descripcion: document.getElementById("descripcion").value.trim(),
+        tipoServicio: servicio,
+        nombreServicio: nombresServicios[servicio],
+        urgencia: document.getElementById("urgencia").value,
+        extras,
+        fechaPreferida: fecha,
+        hora,
+        totalEstimado: calcularTotal(),
+        estado: "pendiente"
+      };
+
+      citas.push(nuevaCita);
+      guardarCitas(citas);
+
+      alert(
+        "✅ Cita agendada correctamente.\n\n" +
+        "Número de cita: " + nuevaCita.id + "\n" +
+        "Servicio: " + nuevaCita.nombreServicio + "\n" +
+        "Fecha: " + nuevaCita.fechaPreferida + " a las " + nuevaCita.hora + "\n" +
+        "Total estimado: " + fmtLocal(nuevaCita.totalEstimado)
+      );
+
+      /* 🧾 RECIBO EN PDF DE LA CITA */
+      if (confirm("🧾 ¿Deseas descargar el recibo de tu cita en PDF?")) {
+        generarReciboCita(nuevaCita);
+      }
+
+      document.getElementById("form-cita").reset();
+      actualizarResumen();
+      establecerFechaMinima();
+      document.querySelectorAll('.service-card').forEach(t => t.classList.remove('is-selected'));
+    }
+
+    function establecerFechaMinima(){
+      const fecha = document.getElementById("fecha");
+      if (!fecha) return;
+
+      const hoy = new Date();
+      hoy.setDate(hoy.getDate() + 1);
+      fecha.min = hoy.toISOString().slice(0, 10);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      establecerFechaMinima();
+      actualizarResumen();
+    });
+  </script>
+</body>
+</html>
