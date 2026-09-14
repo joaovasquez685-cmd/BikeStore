@@ -1,18 +1,118 @@
-/* ========= VELOCE BIKES - app.js (credenciales protegidas) ========= */
-const CAT_NOMBRES = { montaña:"Montaña", ruta:"Ruta", urbana:"Urbana", eléctrica:"Eléctrica", bmx:"BMX", infantil:"Infantil" };
+/* ========= VELOCE BIKES - app.js v6 ========= */
+const CAT_NOMBRES = { montaña:"Montaña", ruta:"Ruta", urbana:"Urbana", eléctrica:"Eléctrica", bmx:"BMX", infantil:"Infantil", accesorios:"Accesorios" };
 const fmt = n => "$" + n.toLocaleString("es-CO");
 const $ = id => document.getElementById(id);
 let selectedTalla = null, selectedColorIdx = 0, currentProduct = null, comparados = [];
+let ultimoPedido = null;
 
-/* Credencial de semilla del admin CODIFICADA (Base64): en el código
-   no aparece ninguna contraseña legible. En la BD solo se guarda su hash. */
 const ADMIN_CLAVE_B64 = "QWRtaW4xMjMq";
 
-const RESENAS_DEMO = [
-  { autor:"Carlos M.", fecha:"12/08/2026", rating:5, texto:"Excelente relación calidad-precio. Llegó en 3 días y perfectamente ajustada." },
-  { autor:"Laura G.", fecha:"03/07/2026", rating:4, texto:"Muy buena bicicleta. Solo tuve que centrar los frenos al recibirla, lo demás perfecto." },
-  { autor:"Andrés P.", fecha:"19/05/2026", rating:5, texto:"La guía de tallas acertó exactamente con mi altura. 100% recomendada." }
-];
+/* ============ RESEÑAS DINÁMICAS POR PRODUCTO ============ */
+const AUTORES = ["Carlos M.","Laura G.","Andrés P.","Mariana R.","Jorge C.","Camila T.","Felipe V.","Diana S.","Ricardo B.","Paula H.","Sergio L.","Valentina O."];
+const FECHAS_RESENA = ["08/09/2026","21/08/2026","02/07/2026","15/06/2026","28/04/2026","11/03/2026","19/01/2026","05/12/2025"];
+
+const PLANTILLAS_RESENAS = {
+  montaña: [
+    "La {nombre} se portó espectacular en trocha: la suspensión ({suspension}) absorbe muy bien y los cambios ({velocidades}) pasan suaves incluso con barro.",
+    "Rodé {n} km de sendero en la {nombre} y no necesitó ni un ajuste. El freno {frenos} da mucha confianza en bajadas técnicas.",
+    "Excelente geometría y el peso ({peso}) se siente ligero al subir. La recomiendo para quien empieza en montaña seria.",
+    "Llegó perfectamente empacada y el armado tomó 20 minutos. En ruta de finca respondió como una bici de gama alta.",
+    "El cuadro se siente rígido y noble. Único detalle: me tocó centrar un radio tras la primera salida, pero el soporte lo hizo gratis."
+  ],
+  ruta: [
+    "La {nombre} rueda finísimo: con rueda {rueda} y {velocidades} mantengo el promedio sin sufrir. El peso ({peso}) se nota en cada repecho.",
+    "Hice una rodada de {n} km y la posición es cómoda aun siendo agresiva. Los frenos {frenos} responden suaves y progresivos.",
+    "Comparada con mi bici anterior, la {nombre} es otra liga: más rígida al sprint y más estable bajando.",
+    "Estética 10/10 y rendimiento real. El cambio de marchas es silencioso incluso bajo carga.",
+    "Para el precio, el grupo de componentes es muy superior al de la competencia. Feliz con la compra."
+  ],
+  urbana: [
+    "Uso la {nombre} a diario para ir al trabajo: cómoda, ágil en tráfico y el mantenimiento es mínimo.",
+    "Me encantó que viniera lista para ciudad. Los frenos {frenos} paran seguro incluso con lluvia.",
+    "Ligera para ser urbana ({peso}). La subo al apartamento sin problema y rueda suave en ciclorruta.",
+    "Excelente para entregas y mandados: el cuadro aguanta y la posición de manejo es relajada.",
+    "Después de {n} km urbanos, cero ruidos. Muy buena relación calidad-precio."
+  ],
+  eléctrica: [
+    "La asistencia de la {nombre} es suavísima: subo puentes sudando la mitad y la batería rinde lo prometido.",
+    "La cargué completa y aun así el motor empuja parejo. Los {n} km de autonomía se cumplen en modo eco.",
+    "Pesada al subir escaleras ({peso}), pero en plano es una nube. El display es claro y fácil de usar.",
+    "La uso para reemplazar el carro en trayectos cortos: ahorro brutal y cero emisiones.",
+    "El freno {frenos} es indispensable con el peso y la velocidad de esta bici. Muy segura."
+  ],
+  bmx: [
+    "La {nombre} aguanta mis sesiones de park sin quejarse: cuadro rígido y rines firmes.",
+    "Perfecta para street: los pegs vienen incluidos y los rodamientos sellados giran suaves.",
+    "Mi hijo la maltrata a diario y sigue como nueva. Resistencia real de cuadro.",
+    "Geometría cómoda para trucos básicos y saltos. Muy buena para progresar.",
+    "Por el precio, la calidad del conjunto ({peso}) es sorprendente."
+  ],
+  infantil: [
+    "Se la compramos a mi hija de 6 años y aprendió en una tarde: liviana y con frenos que ella alcanza fácil.",
+    "Las rueditas entrenadoras se quitan sin herramientas. Excelente acabado, sin bordes filosos.",
+    "Mi sobrino feliz: el color es igual al de la foto y el tamaño quedó perfecto.",
+    "Resistente a golpes de principiante. La pintura no se despega.",
+    "Buenísima compra: ligera ({peso}) y segura para aprender."
+  ],
+  accesorios: [
+    "Lo compré para complementar mi bici y superó lo esperado: calidad de marca sin pagar de más.",
+    "Uso el/la {nombre} hace {n} semanas en mis rodadas y sigue como nuevo(a).",
+    "Llegó antes de lo prometido y bien empacado. Cumple exactamente lo que dice la ficha técnica.",
+    "Se nota el material de calidad; lo recomiendo para uso diario en ciudad o trocha.",
+    "Buena relación precio-calidad de parte de {marca}. Lo volvería a comprar sin dudarlo."
+  ]
+};
+
+const FRASE_SUB = {
+  cascos:"El ajuste de ruleta queda firme y la ventilación se agradece en clima cálido.",
+  guantes:"La palmilla amortigua muy bien las vibraciones del manubrio.",
+  ropa:"El corte queda entallado sin apretar y la tela seca rápido.",
+  iluminacion:"La potencia lumínica es real: manejo de noche totalmente tranquilo.",
+  seguridad:"Se siente sólido al asegurar la bici en la calle o el trabajo.",
+  hidratacion:"La válvula no gotea y se bebe sin soltar el manubrio.",
+  herramientas:"Me salvó de un ajuste en plena rodada: indispensable en la mochila.",
+  componentes:"La instalación fue directa y el funcionamiento es silencioso."
+};
+
+function hashStr(s){
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+function rellenarPlantilla(t, p){
+  const s = p.specs || {};
+  const n = 30 + (hashStr(p.id + "n") % 60);
+  return t
+    .replace(/\{nombre\}/g, p.nombre)
+    .replace(/\{marca\}/g, p.marca)
+    .replace(/\{frenos\}/g, s.frenos || "sistema de frenos")
+    .replace(/\{velocidades\}/g, s.velocidades || "sus cambios")
+    .replace(/\{suspension\}/g, s.suspension || "suspensión")
+    .replace(/\{rueda\}/g, s.rueda || "rueda")
+    .replace(/\{peso\}/g, s.peso || "su peso")
+    .replace(/\{n\}/g, n);
+}
+
+function generarResenas(p){
+  const seed = hashStr(p.id);
+  const pool = PLANTILLAS_RESENAS[p.categoria] || PLANTILLAS_RESENAS.accesorios;
+  const base = (p.reviews && p.reviews.promedio) ? p.reviews.promedio : 4.5;
+  const combos = base >= 4.7 ? [5,5,4] : base >= 4.4 ? [5,4,4] : [4,4,3];
+  const extra = FRASE_SUB[p.subcategoria] || "";
+  const out = [];
+  for (let i = 0; i < 3; i++){
+    let texto = rellenarPlantilla(pool[(seed + i * 3) % pool.length], p);
+    if (i === 0 && extra) texto += " " + extra;
+    out.push({
+      autor: AUTORES[(seed + i * 5) % AUTORES.length],
+      fecha: FECHAS_RESENA[(seed + i * 2) % FECHAS_RESENA.length],
+      rating: combos[(seed + i) % 3],
+      texto
+    });
+  }
+  return out;
+}
 
 /* ============ "BASE DE DATOS" DE PRODUCTOS ============ */
 function initProductsDB(){
@@ -28,7 +128,27 @@ function saveAllProducts(all){ localStorage.setItem("veloce_products", JSON.stri
 function getAllProducts(){ return JSON.parse(localStorage.getItem("veloce_products")) || []; }
 initProductsDB();
 
-/* ============ AUTENTICACIÓN (RF-13 a RF-16, RNF-05) ============ */
+/* ============ STOCK: se descuenta con cada compra ============ */
+function descontarStock(items){
+  const all = getAllProducts();
+  let cambio = false;
+  items.forEach(i => {
+    const p = all.find(x => x.id === i.id);
+    if (!p) return;
+    const idx = (p.nombresColores || []).indexOf(i.color);
+    if (idx >= 0 && Array.isArray(p.stockPorColor)){
+      p.stockPorColor[idx] = Math.max(0, (p.stockPorColor[idx] || 0) - i.cantidad);
+    }
+    p.stock = Math.max(0, (p.stock || 0) - i.cantidad);
+    cambio = true;
+  });
+  if (cambio){
+    saveAllProducts(all);
+    initProductsDB();
+  }
+}
+
+/* ============ AUTENTICACIÓN ============ */
 const USERS_KEY = "veloce_users";
 const SESSION_KEY = "veloce_session";
 
@@ -48,7 +168,6 @@ function getSession(){ return JSON.parse(localStorage.getItem(SESSION_KEY)) || n
 function setSession(s){ s ? localStorage.setItem(SESSION_KEY, JSON.stringify(s)) : localStorage.removeItem(SESSION_KEY); }
 function emailValido(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email); }
 
-/* Bloqueo de contraseñas débiles / filtradas (tipo aviso de Google) */
 const CONTRASENAS_DEBILES = ["12345678","123456789","1234567890","11111111","00000000","password","contrasena","qwerty123","abc12345","admin123"];
 function validarFortaleza(pass){
   if (pass.length < 8) return "⚠️ La contraseña debe tener al menos 8 caracteres.";
@@ -57,8 +176,6 @@ function validarFortaleza(pass){
   return null;
 }
 
-/* Semilla del admin: crea la cuenta con el hash de la clave codificada.
-   Si por alguna versión previa el admin quedó sin hash, lo repara. */
 async function seedAdmin(){
   const users = getUsers();
   const hashDefault = await hashPass(atob(ADMIN_CLAVE_B64));
@@ -72,7 +189,6 @@ async function seedAdmin(){
   }
 }
 
-/* RF-13 + RF-14 con política de contraseña fuerte */
 async function registrarUsuario(nombre, email, pass){
   if (!nombre) return "⚠️ Escribe tu nombre completo.";
   if (!emailValido(email)) return "⚠️ El correo no es válido. Ejemplo correcto: nombre@dominio.com";
@@ -85,7 +201,6 @@ async function registrarUsuario(nombre, email, pass){
   return null;
 }
 
-/* RF-15 */
 async function iniciarSesion(email, pass){
   const user = getUsers().find(u => u.email === email);
   if (!user) return "⚠️ No existe una cuenta con este correo.";
@@ -97,7 +212,6 @@ async function iniciarSesion(email, pass){
 }
 function cerrarSesion(){ setSession(null); location.reload(); }
 
-/* RF-16 */
 const codigosRecuperacion = {};
 function solicitarRecuperacion(email){
   if (!emailValido(email)) return "⚠️ El correo no es válido.";
@@ -117,7 +231,7 @@ async function restablecerContrasena(email, code, nuevaPass){
   return null;
 }
 
-/* ============ CARRITO POR USUARIO (RF-08) ============ */
+/* ============ CARRITO POR USUARIO ============ */
 function cartKey(){
   const s = getSession();
   return "veloce_cart_" + (s ? s.id : "guest");
@@ -138,19 +252,22 @@ function pintarSesion(){
   const list = document.querySelector(".nav__list"); if (!list) return;
   const s = getSession();
   const li = document.createElement("li");
-  li.style.cssText = "display:flex;align-items:center;gap:10px;font-size:.88rem;";
+  li.style.cssText = "display:flex;align-items:center;gap:10px;font-size:.88rem;white-space:nowrap;";
   if (s){
+    const esAdmin = s.rol === "administrador";
     li.innerHTML =
-      `<span style="font-weight:600;color:var(--ink);">👤 ${s.nombre.split(" ")[0]}${s.rol === "administrador" ? ' <small style="color:var(--accent);font-weight:800;">ADMIN</small>' : ""}</span>` +
-      (s.rol === "administrador" ? `<a href="admin.html" style="color:var(--accent);font-weight:600;">Panel</a>` : "") +
-      `<button onclick="cerrarSesion()" style="background:none;border:none;color:var(--ink-soft);cursor:pointer;text-decoration:underline;">Salir</button>`;
+      `<span style="display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--ink);">👤 ${s.nombre.split(" ")[0]}` +
+        (esAdmin ? `<span style="background:var(--accent);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.08em;padding:3px 9px;border-radius:999px;">ADMIN</span>` : "") +
+      `</span>` +
+      (esAdmin ? `<a href="admin.html" style="display:inline-flex;align-items:center;padding:7px 15px;border:1.5px solid var(--accent);border-radius:999px;color:var(--accent);font-weight:700;font-size:.82rem;transition:all .2s;" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='var(--accent)'">Panel</a>` : "") +
+      `<button onclick="cerrarSesion()" style="background:none;border:none;color:var(--ink-soft);cursor:pointer;text-decoration:underline;font-size:.82rem;">Salir</button>`;
   } else {
     li.innerHTML = `<a href="login.html" style="font-weight:600;color:var(--accent);">Ingresar</a>`;
   }
   list.appendChild(li);
 }
 
-/* ============ PEDIDOS Y PAGO (RF-10 a RF-12) ============ */
+/* ============ PEDIDOS Y PAGO ============ */
 function getOrders(){ return JSON.parse(localStorage.getItem("veloce_orders")) || []; }
 function saveOrders(o){ localStorage.setItem("veloce_orders", JSON.stringify(o)); }
 function nuevoNumeroPedido(){
@@ -189,7 +306,9 @@ function procesarPedido(datosEnvio, datosPago){
     estado: "pagado"
   };
   const orders = getOrders(); orders.push(pedido); saveOrders(orders);
+  descontarStock(pedido.items);   /* 📉 el inventario se actualiza con cada venta */
   setCart([]);
+  ultimoPedido = pedido;
   return { pedido };
 }
 function mostrarConfirmacion(pedido){
@@ -210,9 +329,118 @@ function mostrarConfirmacion(pedido){
         <hr style="border:none;border-top:1px dashed var(--line);margin:10px 0;">
         <p style="font-size:1.15rem;font-weight:800;color:var(--ink);">Total pagado: ${fmt(pedido.total)}</p>
       </div>
-      <a href="catalogo.html" class="btn" style="margin-top:20px;">Seguir comprando</a>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+        <button class="btn" onclick="generarReciboPedido()">📄 Descargar recibo en PDF</button>
+        <a href="catalogo.html" class="btn btn--ghost">Seguir comprando</a>
+      </div>
     </div>`;
   window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ============ RECIBOS EN PDF ============ */
+function abrirVentanaRecibo(contenido){
+  const win = window.open("", "_blank", "width=820,height=940");
+  if (!win){ alert("⚠️ Tu navegador bloqueó la ventana emergente. Permite las ventanas emergentes para descargar el recibo."); return; }
+  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Recibo Veloce Bikes</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,Helvetica,sans-serif;color:#0B1220;padding:40px;background:#fff}
+    .head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:3px solid #FF4D00;padding-bottom:16px;margin-bottom:24px}
+    .logo{font-size:26px;font-weight:800}
+    .logo span{color:#FF4D00}
+    .meta{text-align:right;font-size:12px;color:#5B6472;line-height:1.8}
+    h1{font-size:18px;margin-bottom:4px}
+    .sub{color:#5B6472;font-size:12px;margin-bottom:20px}
+    .box{border:1px solid #E6E9EF;border-radius:10px;padding:16px;margin-bottom:18px;font-size:13px;line-height:1.9}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px}
+    th{background:#0B0F14;color:#fff;text-align:left;padding:10px 12px;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+    td{padding:10px 12px;border-bottom:1px solid #E6E9EF}
+    .tot{margin-left:auto;width:280px;font-size:13px}
+    .tot div{display:flex;justify-content:space-between;gap:12px;padding:6px 0}
+    .tot .grand{border-top:2px solid #0B1220;margin-top:6px;padding-top:10px;font-size:16px;font-weight:800}
+    .tot .grand span:last-child{color:#FF4D00}
+    .foot{margin-top:32px;border-top:1px dashed #9AA4B2;padding-top:14px;font-size:11px;color:#5B6472;text-align:center;line-height:1.8}
+    @media print{ body{padding:10mm} }
+  </style></head><body>${contenido}
+  <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function generarReciboPedido(pedido){
+  const p = pedido || ultimoPedido;
+  if (!p){ alert("⚠️ No hay ningún pedido reciente para generar el recibo."); return; }
+  const filas = p.items.map(i =>
+    `<tr><td>${i.cantidad} × ${i.nombre} (T ${i.talla}, ${i.color})</td><td>${fmt(i.precio)}</td><td style="text-align:right">${fmt(i.precio * i.cantidad)}</td></tr>`
+  ).join("");
+  abrirVentanaRecibo(`
+    <div class="head">
+      <div>
+        <div class="logo">🚲 VELOCE <span>BIKES</span></div>
+        <div class="sub" style="margin:0">Tecnología y pasión sobre dos ruedas<br>SENA — CBI Palmira · NIT 900.123.456-8</div>
+      </div>
+      <div class="meta">
+        <strong>RECIBO DE VENTA</strong><br>
+        N° ${p.id}<br>
+        Fecha: ${new Date(p.fecha).toLocaleString("es-CO")}<br>
+        Estado: ${p.estado.toUpperCase()}
+      </div>
+    </div>
+    <h1>Gracias por tu compra, ${p.usuarioNombre}</h1>
+    <p class="sub">Este comprobante certifica tu pedido realizado en Veloce Bikes (pago simulado con fines formativos).</p>
+    <div class="box">
+      <b>Cliente:</b> ${p.usuarioNombre} · ${p.email}<br>
+      <b>Envío:</b> ${p.direccion.direccion}, ${p.direccion.ciudad} · Tel: ${p.direccion.telefono}<br>
+      <b>Pago:</b> ${p.pago.metodo} terminada en ${p.pago.ultimos4}
+    </div>
+    <table>
+      <thead><tr><th>Concepto</th><th>P. unitario</th><th style="text-align:right">Subtotal</th></tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+    <div class="tot">
+      <div><span>Subtotal</span><span>${fmt(p.subtotal)}</span></div>
+      <div><span>Envío</span><span>${p.envio === 0 ? "Gratis" : fmt(p.envio)}</span></div>
+      <div class="grand"><span>TOTAL PAGADO</span><span>${fmt(p.total)}</span></div>
+    </div>
+    <div class="foot">
+      Documento equivalente a factura (simulado) · Garantía de 2 años en cuadro y componentes<br>
+      Devoluciones dentro de los 30 días · https://joaovasquez685-cmd.github.io/BikeStore/
+    </div>`);
+}
+
+function generarReciboCita(cita){
+  if (!cita){ alert("⚠️ No hay ninguna cita reciente para generar el recibo."); return; }
+  const extras = (cita.extras && cita.extras.length) ? cita.extras.join(", ") : "Ninguno";
+  abrirVentanaRecibo(`
+    <div class="head">
+      <div>
+        <div class="logo">🚲 VELOCE <span>BIKES</span></div>
+        <div class="sub" style="margin:0">Servicio técnico especializado<br>SENA — CBI Palmira</div>
+      </div>
+      <div class="meta">
+        <strong>COMPROBANTE DE CITA</strong><br>
+        N° ${cita.id}<br>
+        Emitido: ${new Date(cita.fechaRegistro).toLocaleString("es-CO")}<br>
+        Estado: ${cita.estado.toUpperCase()}
+      </div>
+    </div>
+    <h1>Cita agendada: ${cita.nombreServicio}</h1>
+    <p class="sub">Presenta este comprobante el día de tu servicio.</p>
+    <div class="box">
+      <b>Cliente:</b> ${cita.nombre} · Tel: ${cita.telefono}${cita.correo ? " · " + cita.correo : ""}<br>
+      <b>Bicicleta:</b> ${cita.tipoBici}${cita.marcaBici ? " — " + cita.marcaBici : ""}<br>
+      <b>Fecha y hora:</b> ${cita.fechaPreferida} a las ${cita.hora}<br>
+      <b>Urgencia:</b> ${cita.urgencia === "prioritario" ? "Prioritario" : "Normal"} · <b>Extras:</b> ${extras}<br>
+      <b>Descripción:</b> ${cita.descripcion || "Sin observaciones adicionales."}
+    </div>
+    <div class="tot">
+      <div><span>Servicio</span><span>${cita.nombreServicio}</span></div>
+      <div class="grand"><span>TOTAL ESTIMADO</span><span>${fmt(cita.totalEstimado)}</span></div>
+    </div>
+    <div class="foot">
+      El valor final puede variar según repuestos requeridos (se cotizan antes de instalar).<br>
+      Garantía de 30 días sobre mano de obra · https://joaovasquez685-cmd.github.io/BikeStore/mantenimiento.html
+    </div>`);
 }
 
 /* ============ MÓDULO DE ADMINISTRACIÓN ============ */
@@ -231,10 +459,10 @@ function renderAdminProducts(){
     (!cat || p.categoria === cat));
   $("admin-products-table").innerHTML = lista.length ? lista.map(p => `
     <tr>
-      <td><img src="${p.imagen}" style="width:56px;height:42px;object-fit:cover;border-radius:8px;background:#EDEFF2;" alt="" onerror="this.onerror=null;this.src='img/placeholder.webp'"></td>
+      <td><img src="${p.imagen}" style="width:56px;height:42px;object-fit:cover;border-radius:8px;background:#EDEFF2;${p.stock <= 0 ? "filter:grayscale(1);opacity:.6;" : ""}" alt="" onerror="this.onerror=null;this.src='img/placeholder.svg'"></td>
       <td><strong>${p.nombre}</strong><br><small style="color:#5B6472;">${p.marca} · ${CAT_NOMBRES[p.categoria] || p.categoria}</small></td>
       <td>${fmt(p.precio)}</td>
-      <td>${p.stock}</td>
+      <td>${p.stock <= 0 ? '<strong style="color:var(--bad);">0 (agotado)</strong>' : p.stock}</td>
       <td>${p.activo === false ? '<span class="tag tag--off">Inactivo</span>' : '<span class="tag tag--on">Activo</span>'}</td>
       <td><div style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="mini-btn" onclick="abrirFormProducto('${p.id}')">✏️ Editar</button>
@@ -293,7 +521,7 @@ function adminSubmitProducto(ev){
     marca: $("pf-marca").value.trim(),
     precio: parseInt($("pf-precio").value, 10) || 0,
     stock,
-    imagen: $("pf-imagen").value.trim() || "img/placeholder.webp",
+    imagen: $("pf-imagen").value.trim() || "img/placeholder.svg",
     descripcion: $("pf-desc").value.trim() || "Producto registrado por el administrador.",
     badge: $("pf-badge").value,
     tallas: $("pf-tallas").value.split(",").map(s => s.trim()).filter(Boolean),
@@ -315,7 +543,16 @@ function adminSubmitProducto(ev){
   if (!datos.nombre || !datos.precio){ alert("⚠️ Nombre y precio son obligatorios."); return; }
   const all = getAllProducts();
   if (id){
-    Object.assign(all.find(x => x.id === id), datos);
+    const original = all.find(x => x.id === id);
+    /* Si solo cambió el stock, redistribuye proporcional entre colores existentes */
+    if (original && original.stock !== stock && original.nombresColores && original.nombresColores.length){
+      const n = original.nombresColores.length;
+      datos.nombresColores = original.nombresColores;
+      datos.colores = original.colores;
+      datos.stockPorColor = original.nombresColores.map((_, i) =>
+        i === 0 ? Math.ceil(stock / n) : Math.floor(stock / n));
+    }
+    Object.assign(original, datos);
   } else {
     all.push({ ...datos, id:"p-" + Date.now(), reviews:{ promedio:5, total:0 }, popularidad:50,
       fecha:new Date().toISOString().slice(0, 10), activo:true });
@@ -383,21 +620,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function estrellas(r){ const f = Math.round(r); return "★".repeat(f) + "☆".repeat(5 - f); }
 
+function volverAnterior(){
+  if (history.length > 1){ history.back(); return; }
+  location.href = (currentProduct && currentProduct.categoria === "accesorios") ? "accesorios.html" : "catalogo.html";
+}
+
 function cardHTML(p){
+  const catLabel = p.subcategoria
+    ? p.subcategoria.charAt(0).toUpperCase() + p.subcategoria.slice(1)
+    : (CAT_NOMBRES[p.categoria] || p.categoria);
+  const agotado = p.stock <= 0;
   return `
   <article class="product-card">
-    ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
+    ${agotado ? `<span class="badge" style="background:#5B6472;">Agotado</span>` : (p.badge ? `<span class="badge">${p.badge}</span>` : "")}
     <a href="producto.html?id=${p.id}" aria-label="Ver detalle de ${p.nombre}">
-      <img src="${p.imagen}" alt="Bicicleta ${p.nombre}, categoría ${CAT_NOMBRES[p.categoria]}" class="product-card__img" loading="lazy" onerror="this.onerror=null;this.src='img/placeholder.webp'">
+      <img src="${p.imagen}" alt="${p.nombre} - categoría ${catLabel}" class="product-card__img" loading="lazy" decoding="async" ${agotado ? 'style="filter:grayscale(1);opacity:.55;"' : ''} onerror="this.onerror=null;this.src='img/placeholder.svg'">
     </a>
     <div class="product-card__body">
       <h2 class="product-card__title">${p.nombre}</h2>
-      <p class="product-card__cat">${CAT_NOMBRES[p.categoria] || p.categoria} · ${p.marca}</p>
+      <p class="product-card__cat">${catLabel} · ${p.marca}</p>
       <p class="stars" aria-label="Calificación ${p.reviews.promedio} de 5">${estrellas(p.reviews.promedio)} <span>(${p.reviews.total})</span></p>
       <p class="product-card__price">${p.precioAnterior ? `<s class="price-old">${fmt(p.precioAnterior)}</s> ` : ""}${fmt(p.precio)}</p>
       <div class="product-card__actions">
         <a href="producto.html?id=${p.id}" class="btn">Ver detalles</a>
-        <button type="button" class="btn" style="flex:none;width:44px;padding:10px 0;font-size:1.25rem;line-height:1;border-radius:10px;" onclick="agregarRapido('${p.id}')" title="Agregar al carrito" aria-label="Agregar ${p.nombre} al carrito">+</button>
+        <button type="button" class="btn" style="flex:none;width:44px;padding:10px 0;font-size:1.25rem;line-height:1;border-radius:10px;${agotado ? "opacity:.4;cursor:not-allowed;box-shadow:none;" : ""}" ${agotado ? "disabled" : ""} onclick="agregarRapido('${p.id}')" title="${agotado ? "Sin stock disponible" : "Agregar al carrito"}" aria-label="Agregar ${p.nombre} al carrito">+</button>
       </div>
       <label class="compare-check" style="margin-top:8px;"><input type="checkbox" ${comparados.includes(p.id) ? "checked" : ""} onchange="toggleCompare('${p.id}', this)"> Comparar</label>
     </div>
@@ -406,6 +652,8 @@ function cardHTML(p){
 
 function agregarRapido(id){
   const p = productos.find(x => x.id === id);
+  if (!p) return;
+  if (p.stock <= 0){ alert(`⚠️ ${p.nombre} está AGOTADO por el momento. Pronto repondremos stock.`); return; }
   const talla = p.tallas[0], color = p.nombresColores[0], stock = p.stockPorColor[0];
   if (stock <= 0){ alert(`⚠️ ${p.nombre} está agotada en el color ${color}. Revísala en el detalle.`); return; }
   const cart = getCart();
@@ -413,12 +661,12 @@ function agregarRapido(id){
   if (ex) ex.cantidad = Math.min(ex.cantidad + 1, stock);
   else cart.push({ id:p.id, nombre:p.nombre, precio:p.precio, imagen:p.imagen, talla, color, cantidad:1, categoria:p.categoria });
   setCart(cart); updateCartCount();
-  alert(`✅ ${p.nombre} agregada al carrito (Talla ${talla}, ${color}).`);
+  alert(`✅ ${p.nombre} agregado al carrito (Talla ${talla}, ${color}).`);
 }
 
 function renderGrid(lista, id){
   const grid = $(id); if (!grid) return;
-  grid.innerHTML = lista.length ? lista.map(cardHTML).join("") : `<p class="empty-msg">No se encontraron bicicletas con estos criterios.</p>`;
+  grid.innerHTML = lista.length ? lista.map(cardHTML).join("") : `<p class="empty-msg">No se encontraron productos con estos criterios.</p>`;
 }
 
 function abrirModal(titulo, html){
@@ -459,7 +707,7 @@ function initCompareBar(){
 }
 function toggleCompare(id, cb){
   if (cb.checked){
-    if (comparados.length >= 3){ cb.checked = false; alert("Puedes comparar máximo 3 bicicletas."); return; }
+    if (comparados.length >= 3){ cb.checked = false; alert("Puedes comparar máximo 3 productos."); return; }
     comparados.push(id);
   } else comparados = comparados.filter(x => x !== id);
   actualizarCompareBar();
@@ -467,7 +715,7 @@ function toggleCompare(id, cb){
 function actualizarCompareBar(){
   const bar = $("compare-bar"); if (!bar) return;
   bar.hidden = comparados.length === 0;
-  $("compare-txt").textContent = `${comparados.length} de 3 bicicletas seleccionadas`;
+  $("compare-txt").textContent = `${comparados.length} de 3 seleccionados`;
 }
 function limpiarCompare(){
   comparados = []; actualizarCompareBar();
@@ -475,10 +723,10 @@ function limpiarCompare(){
 }
 function abrirComparador(){
   const ps = comparados.map(id => productos.find(p => p.id === id));
-  const filas = [["Precio", p => fmt(p.precio)], ["Categoría", p => CAT_NOMBRES[p.categoria]], ["Marca", p => p.marca],
-    ["Cuadro", p => p.specs.cuadro], ["Frenos", p => p.specs.frenos], ["Rueda", p => p.specs.rueda],
-    ["Velocidades", p => p.specs.velocidades], ["Peso", p => p.specs.peso], ["Carga máx.", p => p.specs.cargaMax], ["Stock", p => p.stock + " u."]];
-  abrirModal("Comparar bicicletas", `<div class="table-scroll"><table class="specs-table compare-table">
+  const filas = [["Precio", p => fmt(p.precio)], ["Categoría", p => CAT_NOMBRES[p.categoria] || p.categoria], ["Marca", p => p.marca],
+    ["Cuadro", p => p.specs.cuadro || "—"], ["Frenos", p => p.specs.frenos || "—"], ["Rueda", p => p.specs.rueda || "—"],
+    ["Velocidades", p => p.specs.velocidades || "—"], ["Peso", p => p.specs.peso || "—"], ["Carga máx.", p => p.specs.cargaMax || "—"], ["Stock", p => (p.stock <= 0 ? "Agotado" : p.stock + " u.")]];
+  abrirModal("Comparar productos", `<div class="table-scroll"><table class="specs-table compare-table">
     <thead><tr><th scope="col"></th>${ps.map(p => `<th scope="col">${p.nombre}</th>`).join("")}</tr></thead>
     <tbody>${filas.map(([n, f]) => `<tr><th scope="row">${n}</th>${ps.map(p => `<td>${f(p)}</td>`).join("")}</tr>`).join("")}</tbody>
   </table></div>`);
@@ -493,7 +741,7 @@ function initAutocomplete(){
     const match = productos.filter(p =>
       p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || p.categoria.includes(q)).slice(0, 6);
     list.innerHTML = match.map(p =>
-      `<li><button type="button" onclick="elegirSugerencia('${p.id}')">${p.nombre} <small>· ${CAT_NOMBRES[p.categoria]}</small></button></li>`).join("");
+      `<li><button type="button" onclick="elegirSugerencia('${p.id}')">${p.nombre} <small>· ${CAT_NOMBRES[p.categoria] || p.categoria}</small></button></li>`).join("");
     list.hidden = match.length === 0;
   });
 }
@@ -519,17 +767,43 @@ function renderProductDetail(){
   document.querySelector('meta[name="description"]').content = p.descripcion;
   inyectarSchema(p);
 
+  const bcCat = $("bc-cat");
+  if (bcCat){
+    if (p.categoria === "accesorios"){ bcCat.href = "accesorios.html"; bcCat.textContent = "Accesorios"; }
+    else { bcCat.href = "catalogo.html"; bcCat.textContent = "Catálogo"; }
+  }
+  const bcName = $("bc-name");
+  if (bcName) bcName.textContent = p.nombre;
+
   $("pdp-title").textContent = p.nombre;
-  $("pdp-cat").textContent = `${CAT_NOMBRES[p.categoria] || p.categoria} · ${p.marca}`;
+  $("pdp-cat").textContent = `${p.subcategoria ? p.subcategoria.charAt(0).toUpperCase() + p.subcategoria.slice(1) : (CAT_NOMBRES[p.categoria] || p.categoria)} · ${p.marca}`;
   $("pdp-desc").textContent = p.descripcion;
   $("pdp-price").innerHTML = `${p.precioAnterior ? `<s class="price-old">${fmt(p.precioAnterior)}</s> ` : ""}${fmt(p.precio)}`;
   $("pdp-rating").innerHTML = `${estrellas(p.reviews.promedio)} <span>${p.reviews.promedio} · ${p.reviews.total} reseñas</span>`;
-  const img = $("pdp-img"); img.src = p.imagen; img.alt = `Bicicleta ${p.nombre}`;
-  img.onerror = () => { img.src = "img/placeholder.webp"; };
+  const img = $("pdp-img"); img.src = p.imagen; img.alt = p.nombre;
+  if (p.stock <= 0) img.style.cssText = "filter:grayscale(1);opacity:.6;";
+  img.onerror = () => { img.src = "img/placeholder.svg"; };
 
   renderColores(p); renderTallas(p); renderSpecs(p); renderResenas(p);
   actualizarStock();
-  $("btn-add-cart").onclick = () => addToCart(p);
+
+  /* Botón añadir: se bloquea si el producto está agotado */
+  const btnAdd = $("btn-add-cart");
+  if (p.stock <= 0){
+    btnAdd.disabled = true;
+    btnAdd.style.opacity = ".5";
+    btnAdd.style.cursor = "not-allowed";
+    btnAdd.style.boxShadow = "none";
+    btnAdd.textContent = "🚫 Producto agotado";
+    btnAdd.onclick = null;
+  } else {
+    btnAdd.disabled = false;
+    btnAdd.style.opacity = "";
+    btnAdd.style.cursor = "";
+    btnAdd.style.boxShadow = "";
+    btnAdd.textContent = "🛒 Añadir al Carrito";
+    btnAdd.onclick = () => addToCart(p);
+  }
 }
 
 function inyectarSchema(p){
@@ -546,7 +820,7 @@ function inyectarSchema(p){
 
 function renderColores(p){
   $("color-options").innerHTML = p.colores.map((c, i) =>
-    `<button type="button" class="color-swatch ${i === 0 ? "selected" : ""}" style="background:${c}" title="${p.nombresColores[i]}" aria-label="Color ${p.nombresColores[i]}" onclick="selectColor(${i})"></button>`).join("");
+    `<button type="button" class="color-swatch ${i === 0 ? "selected" : ""}" style="background:${c};${(p.stockPorColor[i] || 0) <= 0 ? "opacity:.35;" : ""}" title="${p.nombresColores[i]}${(p.stockPorColor[i] || 0) <= 0 ? " (agotado)" : ""}" aria-label="Color ${p.nombresColores[i]}" onclick="selectColor(${i})"></button>`).join("");
 }
 function selectColor(i){
   selectedColorIdx = i;
@@ -557,6 +831,11 @@ function actualizarStock(){
   if (!currentProduct) return;
   const p = currentProduct, st = p.stockPorColor[selectedColorIdx];
   const el = $("pdp-stock");
+  if (p.stock <= 0){
+    el.textContent = "PRODUCTO AGOTADO — sin unidades disponibles";
+    el.className = "stock-label stock-out";
+    return;
+  }
   el.textContent = `Color ${p.nombresColores[selectedColorIdx]}: ${st > 0 ? st + " unidades disponibles" : "AGOTADO en este color"}`;
   el.className = "stock-label " + (st > 0 ? "stock-ok" : "stock-out");
 }
@@ -572,14 +851,14 @@ function selectTalla(el, t){
 }
 
 function renderSpecs(p){
-  const etiquetas = { cuadro:"Material del cuadro", suspension:"Suspensión", velocidades:"Velocidades", frenos:"Frenos", rueda:"Tamaño de rueda", peso:"Peso", componentes:"Componentes", horquilla:"Horquilla", cargaMax:"Capacidad de carga", motor:"Motor", autonomia:"Autonomía" };
+  const etiquetas = { cuadro:"Material del cuadro", suspension:"Suspensión", velocidades:"Velocidades", frenos:"Frenos", rueda:"Tamaño de rueda", peso:"Peso", componentes:"Componentes", horquilla:"Horquilla", cargaMax:"Capacidad de carga", motor:"Motor", autonomia:"Autonomía", talla:"Tallas", certificacion:"Certificación", ventilacion:"Ventilación", material:"Material", palmilla:"Palmilla", cierre:"Cierre", lavado:"Lavado", proteccion:"Protección", impermeabilidad:"Impermeabilidad", bolsillos:"Bolsillos", badana:"Badana", tirantes:"Tirantes", columna:"Columna de agua", altura:"Altura", luminosidad:"Luminosidad", carga:"Carga", resistencia:"Resistencia", modos:"Modos", montaje:"Montaje", sensor:"Sensor", norma:"Norma", ajuste:"Ajuste", capacidad:"Capacidad", aislamiento:"Aislamiento", tapa:"Tapa", tornilleria:"Tornillería", compatibilidad:"Compatibilidad", incluye:"Incluye", presion:"Presión", manometro:"Manómetro", cabezal:"Cabezal", base:"Base", eslabones:"Eslabones", tratamiento:"Tratamiento", rango:"Rango", rodamientos:"Rodamientos", rosca:"Rosca", riel:"Riel", ancho:"Ancho", longitud:"Longitud", llaves:"Llaves", soporte:"Soporte", funda:"Funda", extra:"Extra", interiores:"Interior" };
   $("specs-body").innerHTML = Object.entries(p.specs || {}).map(([k, v]) =>
     `<tr><th scope="row">${etiquetas[k] || k}</th><td>${v}</td></tr>`).join("");
 }
 
 function renderResenas(p){
   const cont = $("reviews-list"); if (!cont) return;
-  cont.innerHTML = RESENAS_DEMO.map(r => `
+  cont.innerHTML = generarResenas(p).map(r => `
     <article class="review-card">
       <header><strong>${r.autor}</strong> <span class="stars">${estrellas(r.rating)}</span> <time>${r.fecha}</time></header>
       <p>${r.texto}</p>
@@ -587,6 +866,7 @@ function renderResenas(p){
 }
 
 function addToCart(p){
+  if (p.stock <= 0){ alert(`⚠️ ${p.nombre} está AGOTADO por el momento.`); return; }
   if (!selectedTalla){ alert("⚠️ Por favor selecciona una TALLA antes de añadir al carrito."); return; }
   const stock = p.stockPorColor[selectedColorIdx];
   if (stock <= 0){ alert("⚠️ Este color se encuentra agotado. Elige otro color."); return; }
@@ -609,7 +889,7 @@ function renderCart(){
   const cont = $("cart-items"); if (!cont) return;
 
   if (!cart.length){
-    cont.innerHTML = `<p class="empty-msg">Tu carrito está vacío. <a href="catalogo.html" style="color:var(--accent);font-weight:600;">Ver catálogo</a></p>`;
+    cont.innerHTML = `<p class="empty-msg">Tu carrito está vacío. <a href="catalogo.html" style="color:var(--accent);font-weight:600;">Ver catálogo</a> · <a href="accesorios.html" style="color:var(--accent);font-weight:600;">Ver accesorios</a></p>`;
     $("cart-subtotal").textContent = fmt(0); $("cart-total").textContent = fmt(0);
     $("cart-shipping").textContent = "—"; return;
   }
@@ -619,7 +899,7 @@ function renderCart(){
     subtotal += item.precio * item.cantidad;
     return `
     <div class="cart-item">
-      <img src="${item.imagen}" alt="${item.nombre}" onerror="this.onerror=null;this.src='img/placeholder.webp'">
+      <img src="${item.imagen}" alt="${item.nombre}" onerror="this.onerror=null;this.src='img/placeholder.svg'">
       <div class="cart-item__info">
         <h4>${item.nombre}</h4>
         <p>Talla: ${item.talla} · Color: ${item.color}</p>
@@ -657,3 +937,95 @@ function removeFromCart(i){
   setCart(cart);
   renderCart(); updateCartCount();
 }
+
+/* ============ ANTI "CARGA INFINITA" ============ */
+setTimeout(() => {
+  document.querySelectorAll("img").forEach(im => {
+    if (!im.complete && !im.dataset.fb) { im.dataset.fb = "1"; im.src = "img/placeholder.svg"; }
+  });
+}, 6000);
+
+/* ============ VSELECT: dropdowns personalizados animados ============ */
+(function(){
+  const registry = [];
+
+  function initVSelects(){
+    document.querySelectorAll(".booking-form select, select[data-vselect]").forEach(sel => {
+      if (sel.dataset.vselectInit) return;
+      sel.dataset.vselectInit = "1";
+
+      const wrap = document.createElement("div");
+      wrap.className = "vselect";
+      sel.parentNode.insertBefore(wrap, sel);
+      wrap.appendChild(sel);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "vselect__btn";
+      btn.setAttribute("aria-haspopup", "listbox");
+      btn.setAttribute("aria-expanded", "false");
+
+      const label = document.createElement("span");
+      label.className = "vselect__label";
+      const arrow = document.createElement("span");
+      arrow.className = "vselect__arrow";
+      btn.append(label, arrow);
+
+      const panel = document.createElement("div");
+      panel.className = "vselect__panel";
+      panel.setAttribute("role", "listbox");
+      wrap.append(btn, panel);
+
+      function renderLabel(){
+        const chosen = sel.selectedOptions[0];
+        label.textContent = chosen ? chosen.textContent : "";
+        label.classList.toggle("is-placeholder", !sel.value);
+      }
+
+      function renderPanel(){
+        panel.innerHTML = "";
+        Array.from(sel.options).forEach(op => {
+          const it = document.createElement("button");
+          it.type = "button";
+          it.className = "vselect__option" + (op.selected ? " is-selected" : "");
+          it.setAttribute("role", "option");
+          it.setAttribute("aria-selected", op.selected ? "true" : "false");
+          it.innerHTML = `<span class="vselect__check">${op.selected ? "✓" : ""}</span>${op.textContent}`;
+          it.addEventListener("click", () => {
+            sel.value = op.value;
+            sel.dispatchEvent(new Event("change", { bubbles:true }));
+            close();
+            renderLabel();
+            btn.focus();
+          });
+          panel.appendChild(it);
+        });
+      }
+
+      function open(){
+        wrap.classList.add("is-open");
+        btn.setAttribute("aria-expanded", "true");
+        renderPanel();
+      }
+      function close(){
+        wrap.classList.remove("is-open");
+        btn.setAttribute("aria-expanded", "false");
+      }
+
+      btn.addEventListener("click", () => wrap.classList.contains("is-open") ? close() : open());
+      document.addEventListener("click", e => { if (!wrap.contains(e.target)) close(); });
+      document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+
+      renderLabel();
+      registry.push({ sel, renderLabel, last: sel.value });
+    });
+  }
+
+  setInterval(() => {
+    registry.forEach(r => {
+      if (r.sel.value !== r.last){ r.last = r.sel.value; r.renderLabel(); }
+    });
+  }, 300);
+
+  document.addEventListener("DOMContentLoaded", initVSelects);
+})();
