@@ -3,158 +3,262 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Catálogo completo de bicicletas Veloce: filtra por categoría, marca, precio, talla, color y tipo de frenos.">
+  <meta name="description" content="Catálogo completo de bicicletas Veloce Bikes. Montaña, ruta, urbana, eléctrica, BMX e infantil. Filtros combinados, comparador y envío a todo Colombia.">
   <title>Catálogo de Bicicletas | Veloce Bikes</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a href="index.html" class="logo" aria-label="Veloce Bikes - Inicio">
-        <span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span>
-        Veloce
+      <a href="index.html" class="logo">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </span>
+        <span>Veloce</span>
       </a>
-      <nav class="nav" aria-label="Navegación principal">
+      <nav class="nav">
         <ul class="nav__list">
           <li><a href="index.html" class="nav__link">Inicio</a></li>
           <li><a href="catalogo.html" class="nav__link" aria-current="page">Catálogo</a></li>
-          <li><a href="carrito.html" class="cart-icon" aria-label="Ver carrito de compras">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            <span id="cart-count" class="cart-count">0</span></a></li>
+          <li><a href="accesorios.html" class="nav__link">Accesorios</a></li>
+          <li><a href="mantenimiento.html" class="nav__link">Mantenimiento</a></li>
+          <li>
+            <a href="carrito.html" class="cart-icon" aria-label="Ver carrito">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="cart-count" id="cart-count">0</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <main class="container">
-    <h1 style="margin:40px 0 8px;font-size:2.2rem;letter-spacing:-.02em;">Catálogo de Bicicletas</h1>
-    <p style="color:#5B6472;margin-bottom:8px;">Encuentra tu bici ideal entre 20 modelos disponibles.</p>
-
-    <div class="catalog-layout">
-      <aside class="filters" aria-label="Filtros de búsqueda">
-        <h3>Filtros</h3>
-        <div class="filter-group"><label for="filter-category">Categoría</label>
-          <select id="filter-category">
-            <option value="">Todas</option><option value="montaña">Montaña</option><option value="ruta">Ruta</option>
-            <option value="urbana">Urbana</option><option value="eléctrica">Eléctrica</option>
-            <option value="bmx">BMX</option><option value="infantil">Infantil</option>
-          </select></div>
-        <div class="filter-group"><label for="filter-brand">Marca</label>
-          <select id="filter-brand">
-            <option value="">Todas</option><option>Veloce</option><option>Trek</option>
-            <option>Specialized</option><option>GW</option><option>Oxford</option>
-          </select></div>
-        <div class="filter-group"><label for="filter-price">Precio máximo</label>
-          <input type="range" id="filter-price" min="500000" max="13000000" step="100000" value="13000000">
-          <p style="font-size:.85rem;color:#5B6472;margin-top:6px;">Hasta: $<span id="price-value">13.000.000</span></p></div>
-        <div class="filter-group"><label for="filter-size">Talla</label>
-          <select id="filter-size">
-            <option value="">Todas</option><option>S</option><option>M</option><option>L</option><option>XL</option>
-            <option>48</option><option>52</option><option>54</option><option>56</option><option>Única</option>
-          </select></div>
-        <div class="filter-group"><label for="filter-color">Color</label>
-          <select id="filter-color">
-            <option value="">Todos</option><option>Negro</option><option>Blanco</option><option>Rojo</option>
-            <option>Azul</option><option>Verde</option><option>Gris</option><option>Naranja</option><option>Vino tinto</option>
-          </select></div>
-        <div class="filter-group"><label for="filter-brakes">Tipo de frenos</label>
-          <select id="filter-brakes">
-            <option value="">Todos</option><option>Disco hidráulico</option><option>Disco mecánico</option>
-            <option>V-Brake</option><option>U-Brake</option><option>Zapata</option>
-          </select></div>
-        <button id="clear-filters" class="btn btn--ghost" style="width:100%;">Limpiar filtros</button>
-      </aside>
-
-      <div>
-        <div class="search-box">
-          <input type="search" id="search-input" placeholder="Buscar por nombre, marca o categoría..." aria-label="Buscar bicicletas" autocomplete="off">
-          <ul id="search-suggestions" class="suggestions" hidden></ul>
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Catálogo</span>
+            <h2>Encuentra tu bici ideal</h2>
+            <p style="color:var(--ink-soft);margin-top:8px;">20 modelos en 6 categorías · ¿Buscas cascos o repuestos? <a href="accesorios.html" style="color:var(--accent);font-weight:600;">Ver accesorios →</a></p>
+          </div>
         </div>
-        <div class="sort-bar">
-          <p style="color:#5B6472;"><strong id="product-count">0</strong> bicicletas encontradas</p>
-          <select id="sort-by" aria-label="Ordenar productos">
-            <option value="popular">Más populares</option>
-            <option value="newest">Novedades</option>
-            <option value="price-asc">Precio: menor a mayor</option>
-            <option value="price-desc">Precio: mayor a menor</option>
-          </select>
+
+        <div class="catalog-layout">
+          <aside class="filters">
+            <h3>Filtros</h3>
+
+            <div class="filter-group">
+              <label for="filtro-cat">Categoría</label>
+              <select id="filtro-cat">
+                <option value="">Todas</option>
+                <option value="montaña">Montaña</option>
+                <option value="ruta">Ruta</option>
+                <option value="urbana">Urbana</option>
+                <option value="eléctrica">Eléctrica</option>
+                <option value="bmx">BMX</option>
+                <option value="infantil">Infantil</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-marca">Marca</label>
+              <select id="filtro-marca">
+                <option value="">Todas</option>
+                <option value="Veloce">Veloce</option>
+                <option value="Trek">Trek</option>
+                <option value="Specialized">Specialized</option>
+                <option value="GW">GW</option>
+                <option value="Oxford">Oxford</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-precio">Precio máximo</label>
+              <input type="range" id="filtro-precio" min="500000" max="13000000" step="100000" value="13000000">
+              <div class="price-range"><span>Hasta: $<span id="precio-valor">13.000.000</span></span></div>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-talla">Talla</label>
+              <select id="filtro-talla">
+                <option value="">Todas</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="48">48</option>
+                <option value="52">52</option>
+                <option value="54">54</option>
+                <option value="56">56</option>
+                <option value="Única">Única</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-color">Color</label>
+              <select id="filtro-color">
+                <option value="">Todos</option>
+                <option value="Negro">Negro</option>
+                <option value="Blanco">Blanco</option>
+                <option value="Rojo">Rojo</option>
+                <option value="Azul">Azul</option>
+                <option value="Verde">Verde</option>
+                <option value="Gris">Gris</option>
+                <option value="Naranja">Naranja</option>
+                <option value="Vino tinto">Vino tinto</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-frenos">Tipo de frenos</label>
+              <select id="filtro-frenos">
+                <option value="">Todos</option>
+                <option value="Disco hidráulico">Disco hidráulico</option>
+                <option value="Disco mecánico">Disco mecánico</option>
+                <option value="V-Brake">V-Brake</option>
+                <option value="U-Brake">U-Brake</option>
+                <option value="Zapata">Zapata</option>
+              </select>
+            </div>
+
+            <button class="btn btn--ghost" style="width:100%;" onclick="limpiarFiltros()">Limpiar filtros</button>
+          </aside>
+
+          <div class="catalog-main">
+            <div class="search-box">
+              <input type="search" id="search-input" placeholder="Buscar por nombre, marca o categoría..." aria-label="Buscar productos">
+              <ul class="suggestions" id="search-suggestions" hidden></ul>
+            </div>
+
+            <div class="sort-bar">
+              <span id="resultados-count">0 bicicletas encontradas</span>
+              <select id="ordenar" aria-label="Ordenar resultados">
+                <option value="popular">Más populares</option>
+                <option value="novedad">Novedades</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+              </select>
+            </div>
+
+            <div class="product-grid" id="product-grid"></div>
+          </div>
         </div>
-        <div id="product-grid" class="product-grid"></div>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer class="footer">
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="logo" style="color:#fff;"><span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span> Veloce</a>
+          <a href="index.html" class="logo">
+            <span class="logo__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
+            </span>
+            <span>Veloce</span>
+          </a>
           <p>Tecnología y pasión sobre dos ruedas. Proyecto formativo SENA.</p>
-          <div class="social">
-            <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.6 1.7-1.6h1.2V4.8c-.6-.1-1.4-.2-2.3-.2-2.3 0-3.9 1.4-3.9 4v2.4H8v3h2.2v7z"/></svg></a>
-            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor" stroke="none"/></svg></a>
-            <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5.5" width="20" height="13" rx="3.5" fill="currentColor"/><path d="M10 9.2v5.6l5-2.8z" fill="#080B0F"/></svg></a>
-          </div>
         </div>
-        <div><h3>Tienda</h3><ul><li><a href="catalogo.html">Catálogo completo</a></li><li><a href="catalogo.html?cat=eléctrica">Eléctricas</a></li><li><a href="catalogo.html?cat=montaña">Montaña</a></li><li><a href="carrito.html">Mi carrito</a></li></ul></div>
-        <div><h3>Ayuda</h3><ul><li><a href="#">Guía de tallas</a></li><li><a href="#">Política de envíos</a></li><li><a href="#">Garantía y devoluciones</a></li><li><a href="#">Contacto</a></li></ul></div>
-        <div><h3>Únete al pelotón</h3><p style="font-size:.9rem;">Ofertas y guías de mantenimiento una vez al mes.</p>
-          <form class="newsletter" onsubmit="event.preventDefault();alert('¡Gracias por suscribirte! 🚴');"><input type="email" required placeholder="tu@correo.com" aria-label="Correo electrónico"><button class="btn" type="submit">Suscribirme</button></form>
+        <div class="footer__col">
+          <h3>Tienda</h3>
+          <ul>
+            <li><a href="catalogo.html">Catálogo completo</a></li>
+            <li><a href="accesorios.html">Accesorios</a></li>
+            <li><a href="mantenimiento.html">Mantenimiento</a></li>
+            <li><a href="carrito.html">Mi carrito</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Ayuda</h3>
+          <ul>
+            <li><a href="#" onclick="abrirGuiaTallas(); return false;">Guía de tallas</a></li>
+            <li><a href="#">Política de envíos</a></li>
+            <li><a href="#">Garantía y devoluciones</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Únete al pelotón</h3>
+          <p>Ofertas y guías de mantenimiento una vez al mes.</p>
+          <form class="newsletter" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+            <input type="email" placeholder="tu@email.com" required>
+            <button type="submit" class="btn">Suscribirme</button>
+          </form>
         </div>
       </div>
-      <div class="footer__pay"><span>Métodos de pago:</span>
-        <span class="pay-pill" title="Visa"><svg viewBox="0 0 48 32" role="img" aria-label="Visa"><rect width="48" height="32" rx="5" fill="#fff"/><text x="24" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-style="italic" font-weight="700" fill="#1A1F71">VISA</text></svg></span>
-        <span class="pay-pill" title="MasterCard"><svg viewBox="0 0 48 32" role="img" aria-label="MasterCard"><rect width="48" height="32" rx="5" fill="#fff"/><circle cx="19" cy="16" r="9.5" fill="#EB001B"/><circle cx="29" cy="16" r="9.5" fill="#F79E1B"/><path d="M24 7.9a9.5 9.5 0 0 1 0 16.2 9.5 9.5 0 0 1 0-16.2z" fill="#FF5F00"/></svg></span>
-        <span class="pay-pill" title="PSE"><svg viewBox="0 0 48 32" role="img" aria-label="PSE"><rect width="48" height="32" rx="5" fill="#fff"/><text x="24" y="19" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="800" fill="#00549F">PSE</text><path d="M10 24c9-3.5 19-3.5 28 0" stroke="#8DC63F" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></span>
-        <span class="pay-pill" title="Nequi"><svg viewBox="0 0 48 32" role="img" aria-label="Nequi"><rect width="48" height="32" rx="5" fill="#fff"/><text x="24" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="800" fill="#E4007C">nequi</text></svg></span>
-        <span class="pay-pill" title="Pago contraentrega"><svg viewBox="0 0 48 32" role="img" aria-label="Pago contraentrega"><rect width="48" height="32" rx="5" fill="#fff"/><rect x="9" y="9" width="30" height="14" rx="2.5" fill="none" stroke="#177245" stroke-width="2"/><circle cx="24" cy="16" r="3.6" fill="none" stroke="#177245" stroke-width="2"/><path d="M13 12.5v7M35 12.5v7" stroke="#177245" stroke-width="2"/></svg></span>
+      <div class="footer__pay">
+        <span>Métodos de pago:</span>
+        <span class="pay-pill">VISA</span>
+        <span class="pay-pill">PSE</span>
+        <span class="pay-pill">nequi</span>
       </div>
-      <div class="footer__bottom"><p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p><p>Hecho con HTML, CSS y JS puros · Cero dependencias</p></div>
+      <div class="footer__bottom">
+        <p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p>
+        <p>Hecho con HTML, CSS y JS puros · Cero dependencias</p>
+      </div>
     </div>
   </footer>
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
+    function applyFilters(){
+      const q = $("search-input") ? $("search-input").value.trim().toLowerCase() : "";
+      const cat = $("filtro-cat").value;
+      const marca = $("filtro-marca").value;
+      const precioMax = parseInt($("filtro-precio").value, 10);
+      const talla = $("filtro-talla").value;
+      const color = $("filtro-color").value;
+      const frenos = $("filtro-frenos").value;
+      const orden = $("ordenar").value;
+
+      $("precio-valor").textContent = precioMax.toLocaleString("es-CO");
+
+      /* El catálogo muestra solo bicicletas; los accesorios tienen su propia página */
+      let lista = productos.filter(p => p.categoria !== "accesorios");
+      if (q) lista = lista.filter(p => p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || p.categoria.includes(q));
+      if (cat) lista = lista.filter(p => p.categoria === cat);
+      if (marca) lista = lista.filter(p => p.marca === marca);
+      lista = lista.filter(p => p.precio <= precioMax);
+      if (talla) lista = lista.filter(p => p.tallas.includes(talla));
+      if (color) lista = lista.filter(p => p.nombresColores.includes(color));
+      if (frenos) lista = lista.filter(p => p.specs && p.specs.frenos === frenos);
+
+      if (orden === "novedad") lista.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      else if (orden === "precio-asc") lista.sort((a, b) => a.precio - b.precio);
+      else if (orden === "precio-desc") lista.sort((a, b) => b.precio - a.precio);
+      else lista.sort((a, b) => b.popularidad - a.popularidad);
+
+      $("resultados-count").textContent = lista.length + (lista.length === 1 ? " bicicleta encontrada" : " bicicletas encontradas");
+      renderGrid(lista, "product-grid");
+    }
+
+    function limpiarFiltros(){
+      $("filtro-cat").value = ""; $("filtro-marca").value = ""; $("filtro-precio").value = 13000000;
+      $("filtro-talla").value = ""; $("filtro-color").value = ""; $("filtro-frenos").value = "";
+      $("ordenar").value = "popular";
+      if ($("search-input")) $("search-input").value = "";
+      if ($("search-suggestions")) $("search-suggestions").hidden = true;
+      applyFilters();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      const fCat = $("filter-category"), fBrand = $("filter-brand"), fPrice = $("filter-price"),
-            fSize = $("filter-size"), fColor = $("filter-color"), fBrakes = $("filter-brakes"),
-            sortBy = $("sort-by"), search = $("search-input");
-
-      const catUrl = new URLSearchParams(location.search).get("cat");
-      if (catUrl) fCat.value = catUrl;
-
-      fPrice.addEventListener("input", () => { $("price-value").textContent = (+fPrice.value).toLocaleString("es-CO"); applyFilters(); });
-      [fCat, fBrand, fSize, fColor, fBrakes, sortBy].forEach(el => el.addEventListener("change", applyFilters));
-      search.addEventListener("input", applyFilters);
-
-      $("clear-filters").addEventListener("click", () => {
-        fCat.value = fBrand.value = fSize.value = fColor.value = fBrakes.value = "";
-        fPrice.value = 13000000; $("price-value").textContent = "13.000.000";
-        sortBy.value = "popular"; search.value = ""; applyFilters();
+      const cat = new URLSearchParams(location.search).get("cat");
+      if (cat && $("filtro-cat")) $("filtro-cat").value = cat;
+      ["filtro-cat","filtro-marca","filtro-talla","filtro-color","filtro-frenos","ordenar"].forEach(id => {
+        const el = $(id); if (el) el.addEventListener("change", applyFilters);
       });
-
-      function applyFilters(){
-        let list = [...productos];
-        const q = search.value.trim().toLowerCase();
-        if (q) list = list.filter(p => p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || p.categoria.includes(q));
-        if (fCat.value) list = list.filter(p => p.categoria === fCat.value);
-        if (fBrand.value) list = list.filter(p => p.marca === fBrand.value);
-        list = list.filter(p => p.precio <= +fPrice.value);
-        if (fSize.value) list = list.filter(p => p.tallas.includes(fSize.value));
-        if (fColor.value) list = list.filter(p => p.nombresColores.includes(fColor.value));
-        if (fBrakes.value) list = list.filter(p => p.specs.frenos.includes(fBrakes.value));
-
-        switch (sortBy.value){
-          case "price-asc":  list.sort((a,b) => a.precio - b.precio); break;
-          case "price-desc": list.sort((a,b) => b.precio - a.precio); break;
-          case "newest":     list.sort((a,b) => b.fecha.localeCompare(a.fecha)); break;
-          default:           list.sort((a,b) => b.popularidad - a.popularidad);
-        }
-        renderGrid(list, "product-grid");
-        $("product-count").textContent = list.length;
-      }
-      window.applyFilters = applyFilters;
+      const rp = $("filtro-precio"); if (rp) rp.addEventListener("input", applyFilters);
       applyFilters();
     });
   </script>
