@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#EDEFF2"/>
+  <g fill="none" stroke="#9AA4B2" stroke-width="10" stroke-linecap="round">
+    <circle cx="280" cy="380" r="90"/>
+    <circle cx="520" cy="380" r="90"/>
+    <path d="M280 380 L340 240 L470 240 L520 380 L400 380 L340 240 M470 240 L450 200 L495 200"/>
+  </g>
+  <text x="400" y="530" font-family="Arial, sans-serif" font-size="28" fill="#5B6472" text-anchor="middle">Veloce Bikes - Imagen no disponible</text>
+</svg>
