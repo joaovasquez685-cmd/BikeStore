@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tienda de accesorios Veloce Bikes: 30 artículos en cascos, guantes, ropa, iluminación, seguridad, hidratación, herramientas y componentes.">
+  <title>Accesorios | Veloce Bikes</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Tiles de subcategorías (solo esta página) */
+    .sub-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:28px 0}
+    @media(min-width:900px){.sub-tiles{grid-template-columns:repeat(4,1fr)}}
+    .sub-tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;font-family:var(--font-b)}
+    .sub-tile:hover{transform:translateY(-4px);box-shadow:var(--sh-1)}
+    .sub-tile.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,77,0,.15)}
+    .sub-tile .ico{font-size:2rem;display:block;margin-bottom:8px}
+    .sub-tile b{display:block;font-size:.95rem;color:var(--ink)}
+    .sub-tile small{color:var(--ink-soft)}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a href="index.html" class="logo">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </span>
+        <span>Veloce</span>
+      </a>
+      <nav class="nav">
+        <ul class="nav__list">
+          <li><a href="index.html" class="nav__link">Inicio</a></li>
+          <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
+          <li><a href="accesorios.html" class="nav__link" aria-current="page">Accesorios</a></li>
+          <li><a href="mantenimiento.html" class="nav__link">Mantenimiento</a></li>
+          <li>
+            <a href="carrito.html" class="cart-icon" aria-label="Ver carrito">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="cart-count" id="cart-count">0</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__media">
+        <img src="https://image.qwenlm.ai/public_source/b4c07f46-da6d-4994-8e44-17a62f72ae34/641e31e99-324a-4a79-9598-51761e42764f4787.png" alt="Accesorios de ciclismo" loading="eager" onerror="this.style.display='none'">
+      </div>
+      <div class="hero__overlay"></div>
+      <div class="container hero__content">
+        <span class="eyebrow"><span class="dot"></span> Equipamiento completo</span>
+        <h1>Todo para tu <span class="accent">seguridad</span> y comodidad</h1>
+        <p class="lead">30 artículos entre cascos certificados, ropa técnica, luces, candados, hidratación, herramientas y componentes.</p>
+        <div class="hero__cta">
+          <a href="#catalogo-acc" class="btn btn--lg">Ver catálogo</a>
+          <a href="mantenimiento.html" class="btn btn--ghost-light">Agendar mantenimiento</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Subcategorías</span>
+            <h2>Explora por tipo de accesorio</h2>
+          </div>
+        </div>
+        <div class="sub-tiles" id="sub-tiles"></div>
+      </div>
+    </section>
+
+    <section id="catalogo-acc" class="section" style="padding-top:0;">
+      <div class="container">
+        <div class="catalog-layout">
+          <aside class="filters">
+            <h3>Filtros</h3>
+
+            <div class="filter-group">
+              <label for="filtro-sub">Subcategoría</label>
+              <select id="filtro-sub">
+                <option value="">Todas</option>
+                <option value="cascos">Cascos</option>
+                <option value="guantes">Guantes</option>
+                <option value="ropa">Ropa</option>
+                <option value="iluminacion">Iluminación</option>
+                <option value="seguridad">Seguridad</option>
+                <option value="hidratacion">Hidratación</option>
+                <option value="herramientas">Herramientas</option>
+                <option value="componentes">Componentes</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-marca-acc">Marca</label>
+              <select id="filtro-marca-acc">
+                <option value="">Todas</option>
+                <option value="Veloce">Veloce</option>
+                <option value="Specialized">Specialized</option>
+                <option value="Trek">Trek</option>
+                <option value="GW">GW</option>
+                <option value="Shimano">Shimano</option>
+                <option value="Park Tool">Park Tool</option>
+                <option value="CamelBak">CamelBak</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filtro-precio-acc">Precio máximo</label>
+              <input type="range" id="filtro-precio-acc" min="20000" max="600000" step="10000" value="600000">
+              <div class="price-range"><span>Hasta: $<span id="precio-valor-acc">600.000</span></span></div>
+            </div>
+
+            <button class="btn btn--ghost" style="width:100%;" onclick="limpiarFiltrosAcc()">Limpiar filtros</button>
+          </aside>
+
+          <div class="catalog-main">
+            <div class="search-box">
+              <input type="search" id="search-input" placeholder="Buscar casco, guantes, luz..." aria-label="Buscar accesorios">
+              <ul class="suggestions" id="search-suggestions" hidden></ul>
+            </div>
+
+            <div class="sort-bar">
+              <span id="resultados-acc">0 accesorios</span>
+              <select id="ordenar-acc" aria-label="Ordenar resultados">
+                <option value="popular">Más populares</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+                <option value="nombre">Nombre A-Z</option>
+              </select>
+            </div>
+
+            <div class="product-grid" id="accesorios-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0;">
+      <div class="container">
+        <div class="promo">
+          <div>
+            <span class="eyebrow">🎁 Pack recomendado</span>
+            <h2>Equípate seguro: casco + luces + candado</h2>
+            <p>Los tres esenciales del ciclista urbano con envío gratis si superas $2.000.000 en tu pedido.</p>
+            <div class="promo__cta">
+              <a href="#catalogo-acc" class="btn btn--light">Armar mi pack</a>
+            </div>
+          </div>
+          <div class="promo__badge">ENVÍO GRATIS</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="index.html" class="logo">
+            <span class="logo__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
+            </span>
+            <span>Veloce</span>
+          </a>
+          <p>Tecnología y pasión sobre dos ruedas. Proyecto formativo SENA.</p>
+        </div>
+        <div class="footer__col">
+          <h3>Tienda</h3>
+          <ul>
+            <li><a href="catalogo.html">Catálogo completo</a></li>
+            <li><a href="accesorios.html">Accesorios</a></li>
+            <li><a href="mantenimiento.html">Mantenimiento</a></li>
+            <li><a href="carrito.html">Mi carrito</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Ayuda</h3>
+          <ul>
+            <li><a href="#" onclick="abrirGuiaTallas(); return false;">Guía de tallas</a></li>
+            <li><a href="#">Política de envíos</a></li>
+            <li><a href="#">Garantía y devoluciones</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Únete al pelotón</h3>
+          <p>Ofertas y guías de mantenimiento una vez al mes.</p>
+          <form class="newsletter" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+            <input type="email" placeholder="tu@email.com" required>
+            <button type="submit" class="btn">Suscribirme</button>
+          </form>
+        </div>
+      </div>
+      <div class="footer__pay">
+        <span>Métodos de pago:</span>
+        <span class="pay-pill">VISA</span>
+        <span class="pay-pill">PSE</span>
+        <span class="pay-pill">nequi</span>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p>
+        <p>Hecho con HTML, CSS y JS puros · Cero dependencias</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const SUB_NOMBRES = { cascos:"Cascos", guantes:"Guantes", ropa:"Ropa", iluminacion:"Iluminación", seguridad:"Seguridad", hidratacion:"Hidratación", herramientas:"Herramientas", componentes:"Componentes" };
+    const SUB_ICONOS = { cascos:"🪖", guantes:"🧤", ropa:"👕", iluminacion:"💡", seguridad:"🔒", hidratacion:"💧", herramientas:"🛠️", componentes:"⚙️" };
+
+    function applyFilters(){
+      const q = $("search-input") ? $("search-input").value.trim().toLowerCase() : "";
+      const sub = $("filtro-sub").value;
+      const marca = $("filtro-marca-acc").value;
+      const precioMax = parseInt($("filtro-precio-acc").value, 10);
+      const orden = $("ordenar-acc").value;
+
+      $("precio-valor-acc").textContent = precioMax.toLocaleString("es-CO");
+
+      let lista = productos.filter(p => p.categoria === "accesorios");
+      if (q) lista = lista.filter(p => p.nombre.toLowerCase().includes(q) || p.marca.toLowerCase().includes(q) || (p.subcategoria || "").includes(q));
+      if (sub) lista = lista.filter(p => p.subcategoria === sub);
+      if (marca) lista = lista.filter(p => p.marca === marca);
+      lista = lista.filter(p => p.precio <= precioMax);
+
+      if (orden === "precio-asc") lista.sort((a, b) => a.precio - b.precio);
+      else if (orden === "precio-desc") lista.sort((a, b) => b.precio - a.precio);
+      else if (orden === "nombre") lista.sort((a, b) => a.nombre.localeCompare(b.nombre));
+      else lista.sort((a, b) => b.popularidad - a.popularidad);
+
+      $("resultados-acc").textContent = lista.length + (lista.length === 1 ? " accesorio encontrado" : " accesorios encontrados");
+      renderGrid(lista, "accesorios-grid");
+
+      /* Marca el tile activo */
+      document.querySelectorAll(".sub-tile").forEach(t => t.classList.toggle("active", t.dataset.sub === sub));
+    }
+
+    function filtrarPorSub(sub){
+      const sel = $("filtro-sub");
+      sel.value = (sel.value === sub) ? "" : sub;
+      applyFilters();
+      document.getElementById("catalogo-acc").scrollIntoView({ behavior:"smooth" });
+    }
+
+    function limpiarFiltrosAcc(){
+      $("filtro-sub").value = ""; $("filtro-marca-acc").value = ""; $("filtro-precio-acc").value = 600000;
+      $("ordenar-acc").value = "popular";
+      if ($("search-input")) $("search-input").value = "";
+      if ($("search-suggestions")) $("search-suggestions").hidden = true;
+      applyFilters();
+    }
+
+    function renderSubTiles(){
+      const todos = productos.filter(p => p.categoria === "accesorios");
+      const cont = $("sub-tiles"); if (!cont) return;
+      cont.innerHTML = Object.keys(SUB_NOMBRES).map(k => {
+        const n = todos.filter(p => p.subcategoria === k).length;
+        return `<button type="button" class="sub-tile" data-sub="${k}" onclick="filtrarPorSub('${k}')">
+          <span class="ico">${SUB_ICONOS[k]}</span><b>${SUB_NOMBRES[k]}</b><small>${n} artículo${n !== 1 ? "s" : ""}</small>
+        </button>`;
+      }).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      ["filtro-sub","filtro-marca-acc","ordenar-acc"].forEach(id => {
+        const el = $(id); if (el) el.addEventListener("change", applyFilters);
+      });
+      const rp = $("filtro-precio-acc"); if (rp) rp.addEventListener("input", applyFilters);
+      renderSubTiles();
+      applyFilters();
+    });
+  </script>
+</body>
+</html>
