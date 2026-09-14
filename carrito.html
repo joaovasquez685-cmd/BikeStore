@@ -3,145 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Revisa tu carrito, modifica cantidades y completa el pago simulado en Veloce Bikes.">
+  <meta name="description" content="Revisa tu carrito, modifica cantidades y completa el pago simulado. Envío gratis en compras superiores a $2.000.000.">
   <title>Carrito y Pago | Veloce Bikes</title>
   <link rel="stylesheet" href="css/styles.css">
-  <style>
-    .qty{display:flex;align-items:center;gap:10px;margin-top:8px}
-    .qty button{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:all .15s}
-    .qty button:hover{border-color:var(--accent);color:var(--accent)}
-    .qty span{min-width:26px;text-align:center;font-weight:700}
-    .checkout-msg{display:none;margin-top:12px;padding:10px 14px;border-radius:10px;font-size:.88rem;font-weight:600}
-    .checkout-msg.error{display:block;background:var(--bad-bg);color:var(--bad)}
-    .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-    .confirm-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:40px 32px;text-align:center;max-width:640px;margin:40px auto;box-shadow:var(--sh-2)}
-    .confirm-box{text-align:left;background:var(--bg);border-radius:16px;padding:20px;margin-top:18px;font-size:.92rem;display:grid;gap:6px;color:#333C48}
-  </style>
 </head>
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a href="index.html" class="logo" aria-label="Veloce Bikes - Inicio">
-        <span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span>
-        Veloce
+      <a href="index.html" class="logo">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </span>
+        <span>Veloce</span>
       </a>
-      <nav class="nav" aria-label="Navegación principal">
+      <nav class="nav">
         <ul class="nav__list">
           <li><a href="index.html" class="nav__link">Inicio</a></li>
           <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
-          <li><a href="carrito.html" class="cart-icon" aria-current="page" aria-label="Ver carrito de compras">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            <span id="cart-count" class="cart-count">0</span></a></li>
+          <li><a href="accesorios.html" class="nav__link">Accesorios</a></li>
+          <li><a href="mantenimiento.html" class="nav__link">Mantenimiento</a></li>
+          <li>
+            <a href="carrito.html" class="cart-icon" aria-label="Ver carrito" aria-current="page">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="cart-count" id="cart-count">0</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <main class="container">
-    <div id="cart-main">
-      <h1 style="margin:40px 0 8px;font-size:2.2rem;letter-spacing:-.02em;">Tu Carrito</h1>
-      <p style="color:#5B6472;">Modifica cantidades, revisa el resumen y completa el pago simulado.</p>
-
-      <div class="cart-layout">
-        <div id="cart-items" class="cart-items"></div>
-
-        <aside class="cart-summary" aria-label="Resumen del pedido">
-          <h3>Resumen del Pedido</h3>
-          <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
-          <div class="summary-row"><span>Envío</span><span id="cart-shipping">—</span></div>
-          <div class="summary-row summary-total"><span>Total</span><span id="cart-total">$0</span></div>
-
-          <button id="btn-checkout" class="btn" style="width:100%;margin-top:16px;padding:16px;font-size:1.05rem;">Proceder al Pago</button>
-
-          <!-- RF-11: datos de envío + datos de cuenta (pago simulado) -->
-          <div id="checkout-form" class="checkout-form" style="display:none;">
-            <h4 style="margin-bottom:12px;font-size:1rem;">📦 Datos de envío</h4>
-            <div class="form-group"><label for="name">Nombre completo</label><input type="text" id="name" required></div>
-            <div class="form-group"><label for="address">Dirección</label><input type="text" id="address" required placeholder="Calle 123 # 45-67"></div>
-            <div class="form-group"><label for="city">Ciudad</label><input type="text" id="city" required></div>
-            <div class="form-group"><label for="phone">Teléfono</label><input type="tel" id="phone" required placeholder="3001234567"></div>
-
-            <h4 style="margin:18px 0 12px;font-size:1rem;">💳 Pago simulado</h4>
-            <div class="form-group"><label for="card-holder">Titular de la tarjeta</label><input type="text" id="card-holder" required placeholder="Como aparece en la tarjeta"></div>
-            <div class="form-group"><label for="card-number">Número de tarjeta (16 dígitos)</label><input type="text" id="card-number" inputmode="numeric" maxlength="19" required placeholder="4111 1111 1111 1111"></div>
-            <div class="pay-grid">
-              <div class="form-group"><label for="card-exp">Vencimiento (MM/AA)</label><input type="text" id="card-exp" maxlength="5" required placeholder="12/28"></div>
-              <div class="form-group"><label for="card-cvv">CVV</label><input type="password" id="card-cvv" inputmode="numeric" maxlength="4" required placeholder="123"></div>
-            </div>
-
-            <p id="checkout-msg" class="checkout-msg" role="alert"></p>
-            <button id="btn-confirm" class="btn" style="width:100%;margin-top:12px;padding:16px;">Pagar y Confirmar Pedido</button>
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="section-head" id="cart-head">
+          <div>
+            <span class="kicker">Tu Carrito</span>
+            <h2>Revisa tu pedido</h2>
+            <p style="color:var(--ink-soft);margin-top:8px;">Modifica cantidades y completa el pago simulado.</p>
           </div>
-        </aside>
-      </div>
-    </div>
+        </div>
 
-    <!-- RF-12: confirmación de pago exitoso -->
-    <section id="confirm-view" hidden aria-live="polite"></section>
+        <!-- TODO el bloque de compra (productos + formulario) se oculta al pagar -->
+        <div id="cart-main" class="cart-layout">
+          <div>
+            <div id="cart-items" class="cart-items"></div>
+          </div>
+
+          <aside class="cart-summary">
+            <h3>Resumen del Pedido</h3>
+            <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">$0</span></div>
+            <div class="summary-row"><span>Envío</span><span id="cart-shipping">—</span></div>
+            <div class="summary-row summary-total"><span>Total</span><span id="cart-total">$0</span></div>
+
+            <form class="checkout-form" onsubmit="procesarPago(event)">
+              <h4 style="margin:20px 0 12px;">📦 Datos de envío</h4>
+              <div class="form-group"><label>Nombre completo</label><input type="text" id="env-nombre" required></div>
+              <div class="form-group"><label>Dirección</label><input type="text" id="env-direccion" required></div>
+              <div class="form-group"><label>Ciudad</label><input type="text" id="env-ciudad" required></div>
+              <div class="form-group"><label>Teléfono</label><input type="tel" id="env-telefono" required></div>
+
+              <h4 style="margin:20px 0 12px;">💳 Pago simulado</h4>
+              <div class="form-group"><label>Titular de la tarjeta</label><input type="text" id="pago-titular" required></div>
+              <div class="form-group"><label>Número de tarjeta (16 dígitos)</label><input type="text" id="pago-tarjeta" maxlength="19" placeholder="1234 5678 9012 3456" required></div>
+              <div class="form-group"><label>Vencimiento (MM/AA)</label><input type="text" id="pago-venc" placeholder="12/28" maxlength="5" required></div>
+              <div class="form-group"><label>CVV</label><input type="text" id="pago-cvv" maxlength="4" placeholder="123" required></div>
+
+              <button type="submit" class="btn btn--lg" style="width:100%;margin-top:16px;">Pagar y Confirmar Pedido</button>
+            </form>
+          </aside>
+        </div>
+
+        <!-- La confirmación va POR FUERA: queda sola y centrada después del pago -->
+        <div id="confirm-view" hidden style="max-width:760px;margin:24px auto 0;width:100%;"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
     <div class="container">
       <div class="footer__grid">
         <div class="footer__brand">
-          <a href="index.html" class="logo" style="color:#fff;"><span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span> Veloce</a>
+          <a href="index.html" class="logo">
+            <span class="logo__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+              </svg>
+            </span>
+            <span>Veloce</span>
+          </a>
           <p>Tecnología y pasión sobre dos ruedas. Proyecto formativo SENA.</p>
         </div>
-        <div><h3>Tienda</h3><ul><li><a href="catalogo.html">Catálogo completo</a></li><li><a href="catalogo.html?cat=eléctrica">Eléctricas</a></li><li><a href="catalogo.html?cat=montaña">Montaña</a></li><li><a href="carrito.html">Mi carrito</a></li></ul></div>
-        <div><h3>Ayuda</h3><ul><li><a href="#">Guía de tallas</a></li><li><a href="#">Política de envíos</a></li><li><a href="#">Garantía y devoluciones</a></li><li><a href="#">Contacto</a></li></ul></div>
-        <div><h3>Únete al pelotón</h3><p style="font-size:.9rem;">Ofertas y guías de mantenimiento una vez al mes.</p>
-          <form class="newsletter" onsubmit="event.preventDefault();alert('¡Gracias por suscribirte! 🚴');"><input type="email" required placeholder="tu@correo.com" aria-label="Correo electrónico"><button class="btn" type="submit">Suscribirme</button></form>
+        <div class="footer__col">
+          <h3>Tienda</h3>
+          <ul>
+            <li><a href="catalogo.html">Catálogo completo</a></li>
+            <li><a href="accesorios.html">Accesorios</a></li>
+            <li><a href="mantenimiento.html">Mantenimiento</a></li>
+            <li><a href="carrito.html">Mi carrito</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Ayuda</h3>
+          <ul>
+            <li><a href="#">Política de envíos</a></li>
+            <li><a href="#">Garantía y devoluciones</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
         </div>
       </div>
-      <div class="footer__pay"><span>Métodos de pago:</span><span class="pay-pill">VISA</span><span class="pay-pill">MasterCard</span><span class="pay-pill">PSE</span><span class="pay-pill">Nequi</span><span class="pay-pill">Contraentrega</span></div>
-      <div class="footer__bottom"><p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p><p>Hecho con HTML, CSS y JS puros · Cero dependencias</p></div>
+      <div class="footer__pay">
+        <span>Métodos de pago:</span>
+        <span class="pay-pill">VISA</span>
+        <span class="pay-pill">MasterCard</span>
+        <span class="pay-pill">PSE</span>
+        <span class="pay-pill">Nequi</span>
+        <span class="pay-pill">Contraentrega</span>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p>
+        <p>Hecho con HTML, CSS y JS puros · Cero dependencias</p>
+      </div>
     </div>
   </footer>
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    function msgCheckout(t, tipo){
-      const el = $("checkout-msg");
-      el.textContent = t;
-      el.className = "checkout-msg" + (tipo ? " " + tipo : "");
+    function procesarPago(e) {
+      e.preventDefault();
+      const datosEnvio = {
+        nombre: document.getElementById('env-nombre').value,
+        direccion: document.getElementById('env-direccion').value,
+        ciudad: document.getElementById('env-ciudad').value,
+        telefono: document.getElementById('env-telefono').value
+      };
+      const datosPago = {
+        titular: document.getElementById('pago-titular').value,
+        tarjeta: document.getElementById('pago-tarjeta').value,
+        vencimiento: document.getElementById('pago-venc').value,
+        cvv: document.getElementById('pago-cvv').value
+      };
+      const err = validarPago(datosPago);
+      if (err) { alert(err); return; }
+      const resultado = procesarPedido(datosEnvio, datosPago);
+      if (resultado.error) { alert(resultado.error); return; }
+      mostrarConfirmacion(resultado.pedido);
     }
 
+    /* Oculta también el encabezado "Tu Carrito" cuando aparece la confirmación */
     document.addEventListener("DOMContentLoaded", () => {
-      const s = getSession();
-      if (s) $("name").value = s.nombre;
-
-      $("btn-checkout").addEventListener("click", () => {
-        if (!getCart().length){ alert("Tu carrito está vacío."); return; }
-        $("checkout-form").style.display = "block";
-        $("btn-checkout").style.display = "none";
-      });
-
-      $("btn-confirm").addEventListener("click", () => {
-        const datosEnvio = {
-          nombre: $("name").value.trim(),
-          direccion: $("address").value.trim(),
-          ciudad: $("city").value.trim(),
-          telefono: $("phone").value.trim()
-        };
-        if (!datosEnvio.nombre || !datosEnvio.direccion || !datosEnvio.ciudad || !datosEnvio.telefono)
-          return msgCheckout("⚠️ Completa todos los datos de envío.", "error");
-
-        const datosPago = {
-          titular: $("card-holder").value,
-          tarjeta: $("card-number").value,
-          vencimiento: $("card-exp").value,
-          cvv: $("card-cvv").value
-        };
-        const errPago = validarPago(datosPago);
-        if (errPago) return msgCheckout(errPago, "error");
-
-        const res = procesarPedido(datosEnvio, datosPago);
-        if (res.error) return msgCheckout("⚠️ " + res.error, "error");
-
-        updateCartCount();
-        mostrarConfirmacion(res.pedido);
-      });
+      const conf = document.getElementById("confirm-view");
+      const head = document.getElementById("cart-head");
+      if (conf && head){
+        new MutationObserver(() => {
+          head.style.display = conf.hidden ? "" : "none";
+        }).observe(conf, { attributes:true, attributeFilter:["hidden"] });
+      }
     });
   </script>
 </body>
