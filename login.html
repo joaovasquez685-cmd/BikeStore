@@ -3,128 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Inicia sesión o crea tu cuenta en Veloce Bikes.">
+  <meta name="description" content="Inicia sesión o crea tu cuenta en Veloce Bikes. Recuperación de contraseña con código de 6 dígitos.">
   <title>Ingresar | Veloce Bikes</title>
   <link rel="stylesheet" href="css/styles.css">
-  <style>
-    .auth-wrap{min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:48px 16px;background:radial-gradient(60% 60% at 50% 0%,rgba(255,77,0,.08),transparent)}
-    .auth-card{width:100%;max-width:440px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:var(--sh-2)}
-    .auth-tabs{display:flex;gap:8px;background:var(--bg);border-radius:12px;padding:6px;margin-bottom:24px}
-    .auth-tabs button{flex:1;border:none;background:transparent;padding:10px;border-radius:9px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:all .2s}
-    .auth-tabs button.active{background:#fff;color:var(--ink);box-shadow:var(--sh-1)}
-    .auth-msg{display:none;margin-top:14px;padding:10px 14px;border-radius:10px;font-size:.88rem;font-weight:600}
-    .auth-msg.error{display:block;background:var(--bad-bg);color:var(--bad)}
-    .auth-msg.ok{display:block;background:var(--ok-bg);color:var(--ok)}
-    .auth-alt{margin-top:16px;text-align:center;font-size:.85rem;color:var(--ink-soft)}
-    .auth-alt button{background:none;border:none;color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline}
-  </style>
 </head>
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a href="index.html" class="logo" aria-label="Veloce Bikes - Inicio">
-        <span class="logo__mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 19H5.5L12 5.5z"/></svg></span>
-        Veloce
+      <a href="index.html" class="logo">
+        <span class="logo__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+            <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+          </svg>
+        </span>
+        <span>Veloce</span>
       </a>
-      <nav class="nav" aria-label="Navegación principal">
+      <nav class="nav">
         <ul class="nav__list">
           <li><a href="index.html" class="nav__link">Inicio</a></li>
           <li><a href="catalogo.html" class="nav__link">Catálogo</a></li>
-          <li><a href="carrito.html" class="cart-icon" aria-label="Ver carrito de compras">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            <span id="cart-count" class="cart-count">0</span></a></li>
+          <li><a href="accesorios.html" class="nav__link">Accesorios</a></li>
+          <li><a href="mantenimiento.html" class="nav__link">Mantenimiento</a></li>
+          <li>
+            <a href="carrito.html" class="cart-icon" aria-label="Ver carrito">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="cart-count" id="cart-count">0</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
   </header>
 
-  <main class="auth-wrap">
-    <div class="auth-card">
-      <div class="auth-tabs" role="tablist" aria-label="Acceso de usuarios">
-        <button id="tab-login" class="active" type="button" onclick="showView('login')">Iniciar sesión</button>
-        <button id="tab-register" type="button" onclick="showView('register')">Crear cuenta</button>
+  <main>
+    <section class="section">
+      <div class="container">
+        <div class="auth-card">
+          <div style="display:flex;gap:8px;margin-bottom:24px;">
+            <button type="button" class="btn" id="tab-login" style="flex:1;" onclick="mostrarVista('login')">Iniciar sesión</button>
+            <button type="button" class="btn btn--ghost" id="tab-reg" style="flex:1;" onclick="mostrarVista('registro')">Crear cuenta</button>
+          </div>
+
+          <!-- LOGIN -->
+          <form id="vista-login" onsubmit="submitLogin(event)">
+            <div class="form-group">
+              <label for="login-email">Correo electrónico</label>
+              <input type="email" id="login-email" required placeholder="tu@email.com">
+            </div>
+            <div class="form-group">
+              <label for="login-pass">Contraseña</label>
+              <input type="password" id="login-pass" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn--lg btn--full">Ingresar</button>
+            <p style="text-align:center;margin-top:14px;font-size:.88rem;">
+              <button type="button" class="link-guide" onclick="mostrarVista('recuperar')">¿Olvidaste tu contraseña? Recupérala aquí</button>
+            </p>
+          </form>
+
+          <!-- REGISTRO -->
+          <form id="vista-registro" hidden onsubmit="submitRegister(event)">
+            <div class="form-group">
+              <label for="reg-nombre">Nombre completo</label>
+              <input type="text" id="reg-nombre" required placeholder="Tu nombre y apellido">
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Correo electrónico</label>
+              <input type="email" id="reg-email" required placeholder="tu@email.com">
+            </div>
+            <div class="form-group">
+              <label for="reg-pass">Contraseña (mínimo 8 caracteres, letra y número)</label>
+              <input type="password" id="reg-pass" required minlength="8" placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn btn--lg btn--full">Crear cuenta</button>
+          </form>
+
+          <!-- RECUPERAR -->
+          <form id="vista-recuperar" hidden onsubmit="submitReset(event)">
+            <div class="form-group">
+              <label for="rec-email">Correo electrónico</label>
+              <input type="email" id="rec-email" required placeholder="tu@email.com">
+            </div>
+            <button type="button" class="btn btn--ghost btn--full" onclick="pedirCodigo()">Enviar código</button>
+            <div id="rec-paso2" hidden style="margin-top:16px;">
+              <div class="form-group">
+                <label for="rec-code">Código de 6 dígitos</label>
+                <input type="text" id="rec-code" maxlength="6" placeholder="123456">
+              </div>
+              <div class="form-group">
+                <label for="rec-pass">Nueva contraseña</label>
+                <input type="password" id="rec-pass" required minlength="8" placeholder="••••••••">
+              </div>
+              <button type="submit" class="btn btn--lg btn--full">Restablecer contraseña</button>
+            </div>
+            <p style="text-align:center;margin-top:14px;font-size:.88rem;">
+              <button type="button" class="link-guide" onclick="mostrarVista('login')">← Volver a iniciar sesión</button>
+            </p>
+          </form>
+        </div>
       </div>
-
-      <form id="view-login" novalidate>
-        <div class="form-group"><label for="login-email">Correo electrónico</label><input type="email" id="login-email" required placeholder="tu@correo.com"></div>
-        <div class="form-group"><label for="login-pass">Contraseña</label><input type="password" id="login-pass" required placeholder="••••••••"></div>
-        <button class="btn" style="width:100%;padding:14px;" type="submit">Ingresar</button>
-        <p class="auth-alt">¿Olvidaste tu contraseña? <button type="button" onclick="showView('recover')">Recupérala aquí</button></p>
-      </form>
-
-      <form id="view-register" style="display:none;" novalidate>
-        <div class="form-group"><label for="reg-nombre">Nombre completo</label><input type="text" id="reg-nombre" required placeholder="Juan Pérez"></div>
-        <div class="form-group"><label for="reg-email">Correo electrónico</label><input type="email" id="reg-email" required placeholder="tu@correo.com"></div>
-        <div class="form-group"><label for="reg-pass">Contraseña (mínimo 8 caracteres)</label><input type="password" id="reg-pass" required minlength="8" placeholder="••••••••"></div>
-        <button class="btn" style="width:100%;padding:14px;" type="submit">Crear cuenta</button>
-      </form>
-
-      <form id="view-recover" style="display:none;" novalidate>
-        <div class="form-group"><label for="rec-email">Correo electrónico</label><input type="email" id="rec-email" required placeholder="tu@correo.com"></div>
-        <div class="form-group"><label for="rec-code">Código de 6 dígitos</label><input type="text" id="rec-code" inputmode="numeric" maxlength="6" placeholder="123456" disabled></div>
-        <div class="form-group"><label for="rec-pass">Nueva contraseña</label><input type="password" id="rec-pass" minlength="8" placeholder="••••••••" disabled></div>
-        <button class="btn btn--ghost" style="width:100%;padding:12px;" type="button" id="rec-send">Enviar código</button>
-        <button class="btn" style="width:100%;padding:14px;margin-top:8px;" type="submit" id="rec-confirm" disabled>Restablecer contraseña</button>
-        <p class="auth-alt"><button type="button" onclick="showView('login')">← Volver a iniciar sesión</button></p>
-      </form>
-
-      <p id="auth-msg" class="auth-msg" role="alert"></p>
-    </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__bottom">
+        <p>© 2026 Veloce Bikes — Proyecto formativo SENA.</p>
+        <p>Hecho con HTML, CSS y JS puros · Cero dependencias</p>
+      </div>
+    </div>
+  </footer>
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
-    function showView(v){
-      ["login","register","recover"].forEach(x => { document.getElementById("view-" + x).style.display = (x === v) ? "block" : "none"; });
-      document.getElementById("tab-login").classList.toggle("active", v === "login");
-      document.getElementById("tab-register").classList.toggle("active", v === "register");
-      msg("", "");
-    }
-    function msg(texto, tipo){
-      const el = document.getElementById("auth-msg");
-      el.textContent = texto;
-      el.className = "auth-msg" + (tipo ? " " + tipo : "");
+    function mostrarVista(v){
+      ["login","registro","recuperar"].forEach(x => {
+        document.getElementById("vista-" + x).hidden = (x !== v);
+      });
+      document.getElementById("tab-login").className = (v === "login") ? "btn" : "btn btn--ghost";
+      document.getElementById("tab-reg").className = (v === "registro") ? "btn" : "btn btn--ghost";
+      if (v === "login") document.getElementById("tab-login").style.flex = "1";
+      if (v === "registro") document.getElementById("tab-reg").style.flex = "1";
     }
 
-    document.getElementById("view-login").addEventListener("submit", async e => {
+    async function submitLogin(e){
       e.preventDefault();
       const err = await iniciarSesion(document.getElementById("login-email").value.trim(), document.getElementById("login-pass").value);
-      if (err) return msg(err, "error");
-      msg("✅ Sesión iniciada. Redirigiendo…", "ok");
-      setTimeout(() => location.href = "index.html", 900);
-    });
+      if (err){ alert(err); return; }
+      location.href = "index.html";
+    }
 
-    document.getElementById("view-register").addEventListener("submit", async e => {
+    async function submitRegister(e){
       e.preventDefault();
-      const nombre = document.getElementById("reg-nombre").value.trim();
-      const email = document.getElementById("reg-email").value.trim();
-      const pass = document.getElementById("reg-pass").value;
-      const err = await registrarUsuario(nombre, email, pass);
-      if (err) return msg(err, "error");
-      await iniciarSesion(email, pass);
-      msg("✅ Cuenta creada y sesión iniciada. ¡Bienvenido!", "ok");
-      setTimeout(() => location.href = "index.html", 900);
-    });
+      const err = await registrarUsuario(
+        document.getElementById("reg-nombre").value.trim(),
+        document.getElementById("reg-email").value.trim(),
+        document.getElementById("reg-pass").value
+      );
+      if (err){ alert(err); return; }
+      alert("✅ Cuenta creada correctamente. ¡Bienvenido a Veloce Bikes!");
+      location.href = "index.html";
+    }
 
-    document.getElementById("rec-send").addEventListener("click", () => {
-      const err = solicitarRecuperacion(document.getElementById("rec-email").value.trim());
-      if (err) return msg(err, "error");
-      ["rec-code","rec-pass","rec-confirm"].forEach(id => document.getElementById(id).disabled = false);
-      msg("📧 Código enviado (simulado): revisa el aviso en pantalla.", "ok");
-    });
+    function pedirCodigo(){
+      const email = document.getElementById("rec-email").value.trim();
+      const err = solicitarRecuperacion(email);
+      if (err){ alert(err); return; }
+      document.getElementById("rec-paso2").hidden = false;
+    }
 
-    document.getElementById("view-recover").addEventListener("submit", async e => {
+    async function submitReset(e){
       e.preventDefault();
       const err = await restablecerContrasena(
         document.getElementById("rec-email").value.trim(),
         document.getElementById("rec-code").value.trim(),
         document.getElementById("rec-pass").value
       );
-      if (err) return msg(err, "error");
-      msg("✅ Contraseña actualizada. Ya puedes iniciar sesión.", "ok");
-      setTimeout(() => showView("login"), 1200);
-    });
+      if (err){ alert(err); return; }
+      alert("✅ Contraseña restablecida. Ya puedes iniciar sesión.");
+      mostrarVista("login");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => mostrarVista("login"));
   </script>
 </body>
 </html>
