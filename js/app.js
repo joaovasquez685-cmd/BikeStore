@@ -343,10 +343,14 @@ function mostrarConfirmacion(pedido){
 }
 
 /* ============ RECIBOS EN PDF ============ */
+/* ← CAMBIO 1: función nueva del logo real con respaldos automáticos */
+function reciboLogoImg(){
+  return '<img src="img/logo.negro.png" alt="Veloce Bikes" style="height:88px;width:auto;display:block;margin-bottom:6px;" onerror="this.onerror=function(){this.outerHTML=\'<div style=&quot;font-size:26px;font-weight:800;&quot;>🚲 VELOCE <span style=&quot;color:#FF4D00;&quot;>BIKES</span></div>\'};this.src=\'img/logo.blanco.png\';">';
+}
 function abrirVentanaRecibo(contenido){
   const win = window.open("", "_blank", "width=820,height=940");
   if (!win){ alert("⚠️ Tu navegador bloqueó la ventana emergente. Permite las ventanas emergentes para descargar el recibo."); return; }
-  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Recibo Veloce Bikes</title>
+  win.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><base href="${location.href}"><title>Recibo Veloce Bikes</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Arial,Helvetica,sans-serif;color:#0B1220;padding:40px;background:#fff}
@@ -367,7 +371,7 @@ function abrirVentanaRecibo(contenido){
     .foot{margin-top:32px;border-top:1px dashed #9AA4B2;padding-top:14px;font-size:11px;color:#5B6472;text-align:center;line-height:1.8}
     @media print{ body{padding:10mm} }
   </style></head><body>${contenido}
-  <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script>
+  <script>window.onload=function(){setTimeout(function(){window.print()},1000)}<\/script>
   </body></html>`);
   win.document.close();
 }
@@ -381,7 +385,7 @@ function generarReciboPedido(pedido){
   abrirVentanaRecibo(`
     <div class="head">
       <div>
-        <div class="logo">🚲 VELOCE <span>BIKES</span></div>
+        ${reciboLogoImg()}
         <div class="sub" style="margin:0">Tecnología y pasión sobre dos ruedas<br>SENA — CBI Palmira · NIT 900.123.456-8</div>
       </div>
       <div class="meta">
@@ -419,7 +423,7 @@ function generarReciboCita(cita){
   abrirVentanaRecibo(`
     <div class="head">
       <div>
-        <div class="logo">🚲 VELOCE <span>BIKES</span></div>
+        ${reciboLogoImg()}
         <div class="sub" style="margin:0">Servicio técnico especializado<br>SENA — CBI Palmira</div>
       </div>
       <div class="meta">
@@ -1033,4 +1037,127 @@ setTimeout(() => {
   }, 300);
 
   document.addEventListener("DOMContentLoaded", initVSelects);
+})();
+
+/* ============ BORRADO DE RECIBOS / COMPROBANTES (solo admin) ============ */
+function borrarReciboVenta(id){
+  const s = getSession(); if (!s || s.rol !== "administrador"){ alert("⚠️ Solo el administrador puede eliminar recibos."); return; }
+  if (!confirm("⚠️ ¿Eliminar DEFINITIVAMENTE el recibo de venta " + id + "?\nEsta acción no se puede deshacer.")) return;
+  saveOrders(getOrders().filter(o => o.id !== id));
+  alert("✅ Recibo " + id + " eliminado del historial.");
+  location.reload();
+}
+function borrarReciboCita(id){
+  const s = getSession(); if (!s || s.rol !== "administrador"){ alert("⚠️ Solo el administrador puede eliminar recibos."); return; }
+  if (!confirm("⚠️ ¿Eliminar DEFINITIVAMENTE el comprobante de cita " + id + "?\nEsta acción no se puede deshacer.")) return;
+  ["veloce_citas","veloce_bookings","veloce_appointments"].forEach(key => {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    try {
+      const lista = JSON.parse(raw);
+      if (Array.isArray(lista) && lista.some(c => c.id === id)){
+        localStorage.setItem(key, JSON.stringify(lista.filter(c => c.id !== id)));
+      }
+    } catch(e){}
+  });
+  alert("✅ Comprobante " + id + " eliminado del historial.");
+  location.reload();
+}
+function inyectarBotonesBorradoRecibos(){
+  const s = getSession();
+  if (!s || s.rol !== "administrador") return;
+  if (!location.pathname.includes("admin.html")) return;
+  document.querySelectorAll("table").forEach(tabla => {
+    const ths = Array.from(tabla.querySelectorAll("thead th")).map(th => th.textContent.trim());
+    const tieneRecibo = ths.includes("Recibo");
+    const esCitas = tieneRecibo && ths.includes("Servicio");
+    const esVentas = tieneRecibo && !esCitas;
+    if (!esVentas && !esCitas) return;
+    const filaHead = tabla.querySelector("thead tr");
+    if (filaHead && !filaHead.querySelector("th.th-borrar")){
+      const th = document.createElement("th");
+      th.className = "th-borrar";
+      th.textContent = "Eliminar";
+      filaHead.appendChild(th);
+    }
+    tabla.querySelectorAll("tbody tr").forEach(tr => {
+      if (!tr.cells || tr.cells.length === 0) return;
+      if (tr.querySelector(".btn-borrar-recibo")) return;
+      if (tr.querySelector("td[colspan]")) return; /* fila de "sin datos" */
+      const idTexto = tr.cells[0].textContent.trim();
+      if (!idTexto) return;
+      const td = document.createElement("td");
+      td.innerHTML = '<button type="button" class="mini-btn btn-borrar-recibo" style="border-color:var(--bad);color:var(--bad);">🗑️ Eliminar</button>';
+      td.querySelector("button").addEventListener("click", function(){
+        if (esCitas) borrarReciboCita(idTexto); else borrarReciboVenta(idTexto);
+      });
+      tr.appendChild(td);
+    });
+  });
+}
+setInterval(inyectarBotonesBorradoRecibos, 800);
+
+/* ============ COMPRA OBLIGATORIA CON CUENTA ============ */
+(function(){
+  function sinSesion(){ return !getSession(); }
+
+  /* 1) En el carrito: sin sesión se oculta el pago y se muestra el aviso de registro */
+  document.addEventListener("DOMContentLoaded", function(){
+    if (!location.pathname.includes("carrito.html")) return;
+    if (!sinSesion()) return;
+    const form = document.querySelector(".checkout-form") || document.querySelector("form");
+    if (!form) return;
+    const aviso = document.createElement("div");
+    aviso.className = "confirm-card";
+    aviso.innerHTML = `
+      <div style="font-size:3rem;">🔒</div>
+      <h2 style="margin:10px 0 6px;">Crea tu cuenta para continuar</h2>
+      <p style="color:#5B6472;">Para completar tu compra es obligatorio estar registrado.<br>
+      Tu pedido, tu recibo y tus datos quedarán guardados en tu cuenta.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
+        <a href="login.html" class="btn">📝 Crear cuenta</a>
+        <a href="login.html" class="btn btn--ghost">Ya tengo cuenta</a>
+      </div>`;
+    form.parentNode.insertBefore(aviso, form);
+    form.style.display = "none";
+  });
+
+  /* 2) Doble candado: sin sesión no se procesa ningún pedido (aunque se intente pagar directo) */
+  const _procesarPedidoOriginal = procesarPedido;
+  procesarPedido = function(datosEnvio, datosPago){
+    if (sinSesion()){
+      alert("🔒 Para completar tu compra primero inicia sesión o crea una cuenta.");
+      location.href = "login.html";
+      return { error: "Sesión requerida" };
+    }
+    return _procesarPedidoOriginal(datosEnvio, datosPago);
+  };
+})();
+
+/* ============ LOGOS DE MÉTODOS DE PAGO (por texto, sin internet, sin posiciones) ============ */
+(function(){
+  const LOGOS = {
+    visa: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20130%2040'%3E%3Ctext%20x='65'%20y='31'%20font-family='Arial,Helvetica,sans-serif'%20font-size='32'%20font-weight='700'%20font-style='italic'%20fill='%231A1F71'%20text-anchor='middle'%3EVISA%3C/text%3E%3C/svg%3E",
+    pse: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Ccircle%20cx='20'%20cy='20'%20r='20'%20fill='%23004B87'/%3E%3Ccircle%20cx='7'%20cy='14'%20r='1.7'%20fill='%23FFD200'/%3E%3Ccircle%20cx='5'%20cy='20'%20r='1.7'%20fill='%23FFD200'/%3E%3Ccircle%20cx='7'%20cy='26'%20r='1.7'%20fill='%23FFD200'/%3E%3Ctext%20x='21'%20y='26'%20font-family='Arial,Helvetica,sans-serif'%20font-size='15'%20font-style='italic'%20fill='%23FFFFFF'%20text-anchor='middle'%3Epse%3C/text%3E%3C/svg%3E",
+        nequi: "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20150%2040'%3E%3Crect%20x='20'%20y='11'%20width='13'%20height='13'%20rx='2'%20fill='%23D80073'/%3E%3Ctext%20x='40'%20y='31'%20font-family='Arial,Helvetica,sans-serif'%20font-size='27'%20font-weight='700'%20fill='%232B0B3F'%3Enequi%3C/text%3E%3C/svg%3E",
+  };
+  function pintarLogosPago(){
+    document.querySelectorAll(".pay-pill").forEach(p => {
+      if (p.dataset.logoPago) return;
+      const t = p.textContent.trim().toLowerCase();
+      let url = null;
+      if (t.includes("visa")) url = LOGOS.visa;
+      else if (t.includes("pse")) url = LOGOS.pse;
+      else if (t.includes("nequi")) url = LOGOS.nequi;
+      if (!url) return;                      /* MasterCard y Contraentrega quedan en texto */
+      p.dataset.logoPago = "1";
+      p.textContent = "";
+      p.style.width = "58px";
+      p.style.height = "36px";
+      p.style.padding = "5px 8px";
+      p.style.borderRadius = "8px";
+      p.style.background = '#fff url("' + url + '") center / contain no-repeat';
+    });
+  }
+  document.addEventListener("DOMContentLoaded", pintarLogosPago);
 })();
