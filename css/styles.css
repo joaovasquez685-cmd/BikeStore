@@ -581,3 +581,22 @@ body{overflow-x:clip}
   height:40px;
   padding:0 14px;
 }
+
+/* ===== Hero más compacto (todas las páginas) ===== */
+.hero{padding:56px 0 48px}
+.maintenance-hero,
+.accessories-hero{min-height:0}          /* quita el 70vh */
+
+.hero__content{max-width:820px}          /* el título cabe en 2 líneas en vez de 3 */
+.hero h1{
+  font-size:clamp(2rem,4vw,3rem);        /* antes llegaba a 4.3rem */
+  margin:14px 0 12px;
+}
+.lead{font-size:1rem;max-width:560px}
+.hero__cta{margin-top:20px}
+.hero__stats{margin-top:28px;padding-top:20px;gap:32px}
+
+@media (max-width:640px){
+  .hero{padding:40px 0 36px}
+  .hero__stats{margin-top:20px;padding-top:16px;gap:16px}
+}
