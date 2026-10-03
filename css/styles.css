@@ -576,3 +576,8 @@ body{overflow-x:clip}
   .cat-tile:hover img{transform:none}
   .product-card:hover{transform:none}
 }
+
+.product-card__actions a.btn{
+  height:40px;
+  padding:0 14px;
+}
