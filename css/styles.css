@@ -111,7 +111,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .stars span{color:var(--ink-soft);font-size:.78rem;letter-spacing:0}
 .product-card__price{margin-top:auto;font-family:var(--font-d);font-size:1.15rem;font-weight:800}
 .price-old{color:#9AA4B2;font-weight:500;font-size:.8em;margin-right:6px}
-.product-card__actions{display:flex;align-items:center;gap:10px;margin-top:14px}
+.product-card__actions{display:flex;align-items:stretch;gap:10px;margin-top:14px}
 .product-card__actions{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
 .product-card__actions .btn{
   flex:0 1 auto;
