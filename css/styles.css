@@ -547,3 +547,23 @@ input[type="range"]{accent-color:var(--accent);height:6px;cursor:pointer}
   content:"";position:absolute;left:9px;top:50%;transform:translateY(-50%);
   width:8px;height:8px;background:#D80073;border-radius:2px;
 }
+
+/* Header adaptado a celular (solo CSS) */
+@media (max-width:820px){
+  .header__inner{height:auto;flex-wrap:wrap;justify-content:center;padding:8px 0;gap:4px}
+  .nav__list{flex-wrap:wrap;justify-content:center;gap:6px 18px}
+  .nav__link{font-size:.88rem}
+  .nav__link::after{display:none}
+  .header .logo::before{height:44px;width:76px}
+}
+
+/* Evita scroll horizontal */
+body{overflow-x:clip}
+
+/* El zoom no se queda pegado al tocar en pantallas táctiles */
+@media (hover:none){
+  .zoom-wrap:hover img,
+  .product-card:hover .product-card__img,
+  .cat-tile:hover img{transform:none}
+  .product-card:hover{transform:none}
+}
