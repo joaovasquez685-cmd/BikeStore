@@ -112,7 +112,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .product-card__price{margin-top:auto;font-family:var(--font-d);font-size:1.15rem;font-weight:800}
 .price-old{color:#9AA4B2;font-weight:500;font-size:.8em;margin-right:6px}
 .product-card__actions{display:flex;align-items:center;gap:10px;margin-top:14px}
-.product-card__actions .btn{flex:1;padding:10px 14px;font-size:.88rem;border-radius:10px}
+.product-card__actions{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.product-card__actions .btn{
+  flex:0 1 auto;
+  padding:8px 14px;
+  font-size:.82rem;
+  border-radius:10px;
+  white-space:nowrap;       /* evita que "Ver detalles" se parta en 2 líneas */
+  line-height:1.2;
+}
+.product-card__actions .btn:first-child{flex:1}   /* "Ver detalles" ocupa lo que sobra */
 .compare-check{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--ink-soft);white-space:nowrap;cursor:pointer}
 .compare-check input{accent-color:var(--accent);width:15px;height:15px}
 
