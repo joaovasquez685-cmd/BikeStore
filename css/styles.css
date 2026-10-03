@@ -611,8 +611,7 @@ body{overflow-x:clip}
 }
 
 /* degradado muy suave, solo para que el texto se lea */
-.hero__overlay{
-  background:linear-gradient(90deg, rgba(8,11,15,.55) 0%, rgba(8,11,15,.15) 55%, rgba(8,11,15,0) 100%) !important;
+.hero__overlay{background:rgba(8,11,15,.35) !important}
 }
 
 /* el texto se sigue leyendo aunque la foto sea clara */
@@ -620,4 +619,15 @@ body{overflow-x:clip}
 .hero .lead,
 .hero__stats{
   text-shadow:0 2px 12px rgba(0,0,0,.6);
+}
+
+.hero__overlay{display:none !important}   /* quita el oscurecido para ver la foto pura */
+
+.hero{background:#0B0F14}
+.hero__media img,
+.hero__media video{
+  object-fit:contain !important;          /* foto completa, sin recortar */
+  object-position:center !important;
+  opacity:1 !important;
+  filter:none !important;
 }
