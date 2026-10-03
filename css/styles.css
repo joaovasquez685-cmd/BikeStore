@@ -601,15 +601,23 @@ body{overflow-x:clip}
   .hero__stats{margin-top:20px;padding-top:16px;gap:16px}
 }
 
-/* ===== Hero: que la foto se vea mejor ===== */
+/* ===== Hero: foto normal, sin oscurecer ===== */
 .hero__media img,
 .hero__media video{
-  opacity:.65;                    /* antes .4, la foto se veía apagada */
-  object-position:center 40%;     /* sube o baja este % para elegir qué parte se ve */
+  opacity:1 !important;
+  filter:none !important;
+  object-fit:cover !important;
+  object-position:center 40% !important;
 }
 
+/* degradado muy suave, solo para que el texto se lea */
 .hero__overlay{
-  background:
-    radial-gradient(50% 60% at 85% 15%, rgba(255,77,0,.3), transparent 65%),
-    linear-gradient(100deg, rgba(8,11,15,.85) 0%, rgba(8,11,15,.45) 50%, rgba(8,11,15,.1) 100%);
+  background:linear-gradient(90deg, rgba(8,11,15,.55) 0%, rgba(8,11,15,.15) 55%, rgba(8,11,15,0) 100%) !important;
+}
+
+/* el texto se sigue leyendo aunque la foto sea clara */
+.hero h1,
+.hero .lead,
+.hero__stats{
+  text-shadow:0 2px 12px rgba(0,0,0,.6);
 }
