@@ -585,11 +585,11 @@ body{overflow-x:clip}
 /* ===== Hero más compacto (todas las páginas) ===== */
 .hero{padding:56px 0 48px}
 .maintenance-hero,
-.accessories-hero{min-height:0}          /* quita el 70vh */
+.accessories-hero{min-height:0}         
 
-.hero__content{max-width:820px}          /* el título cabe en 2 líneas en vez de 3 */
+.hero__content{max-width:820px}          
 .hero h1{
-  font-size:clamp(2rem,4vw,3rem);        /* antes llegaba a 4.3rem */
+  font-size:clamp(2rem,4vw,3rem);        
   margin:14px 0 12px;
 }
 .lead{font-size:1rem;max-width:560px}
@@ -599,4 +599,17 @@ body{overflow-x:clip}
 @media (max-width:640px){
   .hero{padding:40px 0 36px}
   .hero__stats{margin-top:20px;padding-top:16px;gap:16px}
+}
+
+/* ===== Hero: que la foto se vea mejor ===== */
+.hero__media img,
+.hero__media video{
+  opacity:.65;                    /* antes .4, la foto se veía apagada */
+  object-position:center 40%;     /* sube o baja este % para elegir qué parte se ve */
+}
+
+.hero__overlay{
+  background:
+    radial-gradient(50% 60% at 85% 15%, rgba(255,77,0,.3), transparent 65%),
+    linear-gradient(100deg, rgba(8,11,15,.85) 0%, rgba(8,11,15,.45) 50%, rgba(8,11,15,.1) 100%);
 }
