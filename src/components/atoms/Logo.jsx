@@ -1,0 +1,15 @@
+import { Link } from "react-router-dom"
+
+export default function Logo(){
+  return (
+    <Link to="/" className="logo">
+      <span className="logo__mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="5.5" cy="17.5" r="3.5" /><circle cx="18.5" cy="17.5" r="3.5" />
+          <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2" />
+        </svg>
+      </span>
+      <span>Veloce</span>
+    </Link>
+  )
+}
