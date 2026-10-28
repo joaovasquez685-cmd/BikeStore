@@ -583,3 +583,21 @@ input[type="range"]{accent-color:var(--accent);height:6px;cursor:pointer}
   .terms-dialog{padding:22px 18px}
   .terms-dialog__actions{flex-direction:column}
 }
+
+/* =====================================================
+   FIX MÓVIL: el header desbordaba el ancho de la pantalla
+   (logo 102px + 4 enlaces + carrito > 393px) y movía toda la página
+   ===================================================== */
+html,body{max-width:100%;overflow-x:clip}
+@media (max-width:640px){
+  .header__inner{height:auto;flex-wrap:wrap;justify-content:space-between;row-gap:2px;padding-top:6px;padding-bottom:8px}
+  .header .logo::before{height:44px;width:76px}
+  .nav{width:100%;min-width:0}
+  .nav__list{width:100%;justify-content:space-between;gap:8px}
+  .nav__link{font-size:.82rem}
+  .nav__link::after{bottom:-4px}
+}
+@media (max-width:380px){
+  .nav__list{gap:4px}
+  .nav__link{font-size:.76rem}
+}
