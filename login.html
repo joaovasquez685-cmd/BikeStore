@@ -79,12 +79,12 @@
               <input type="password" id="reg-pass" required minlength="8" placeholder="••••••••">
             </div>
             <div class="form-group" style="margin-bottom:16px;">
-              <label for="reg-terminos" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.9rem;line-height:1.4;font-weight:400;">
-                <input type="checkbox" id="reg-terminos" required style="width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--accent);" onchange="document.getElementById('btn-crear-cuenta').disabled = !this.checked">
-                <span>Acepto los <a href="#" onclick="document.getElementById('dlg-terminos').showModal(); return false;" style="color:var(--accent);font-weight:600;">términos y condiciones</a> y la política de tratamiento de datos de Veloce Bikes.</span>
+              <label for="reg-terminos" class="terms-check">
+                <input type="checkbox" id="reg-terminos" required onchange="document.getElementById('btn-crear-cuenta').disabled = !this.checked">
+                <span>Acepto los <a href="#" onclick="document.getElementById('dlg-terminos').showModal(); return false;">términos y condiciones</a> y la política de tratamiento de datos de Veloce Bikes.</span>
               </label>
             </div>
-            <button type="submit" id="btn-crear-cuenta" class="btn btn--lg btn--full" disabled style="">Crear cuenta</button>
+            <button type="submit" id="btn-crear-cuenta" class="btn btn--lg btn--full" disabled>Crear cuenta</button>
           </form>
 
           <!-- RECUPERAR -->
@@ -114,18 +114,18 @@
     </section>
   </main>
 
-  <dialog id="dlg-terminos" style="max-width:520px;width:92%;border:none;border-radius:16px;padding:28px;">
-    <h3 style="margin-bottom:12px;">Términos y condiciones</h3>
-    <div style="max-height:50vh;overflow:auto;font-size:.92rem;line-height:1.6;color:var(--ink-soft);">
+  <dialog id="dlg-terminos" class="terms-dialog">
+    <h3>Términos y condiciones</h3>
+    <div class="terms-dialog__body">
       <p><strong>1. Uso del sitio.</strong> Veloce Bikes es un proyecto formativo del SENA; las compras y pagos son simulados y no generan cobros reales.</p>
       <p><strong>2. Cuenta de usuario.</strong> Eres responsable de la veracidad de tus datos y de mantener la confidencialidad de tu contraseña.</p>
       <p><strong>3. Datos personales.</strong> Tus datos se almacenan localmente en tu navegador con fines académicos y no se comparten con terceros.</p>
       <p><strong>4. Compras, envíos y garantía.</strong> Aplican las políticas de envío, garantía de 2 años y devolución de 30 días publicadas en el sitio.</p>
       <p><strong>5. Modificaciones.</strong> Veloce Bikes puede actualizar estos términos en cualquier momento.</p>
     </div>
-    <div style="display:flex;gap:8px;margin-top:20px;">
-      <button type="button" class="btn" style="flex:1;" onclick="aceptarTerminos()">Aceptar</button>
-      <button type="button" class="btn btn--ghost" style="flex:1;" onclick="document.getElementById('dlg-terminos').close()">Cerrar</button>
+    <div class="terms-dialog__actions">
+      <button type="button" class="btn" onclick="aceptarTerminos()">Aceptar</button>
+      <button type="button" class="btn btn--ghost" onclick="document.getElementById('dlg-terminos').close()">Cerrar</button>
     </div>
   </dialog>
 
