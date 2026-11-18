@@ -21,7 +21,7 @@ import { useRef, useState, useLayoutEffect, useCallback } from "react"
 export default function Magnifier({
   src,
   alt,
-  zoomFactor = 2,
+  zoomFactor = 1,
   lensSize = 200,
   mode = "lens",
   style,

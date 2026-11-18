@@ -45,7 +45,7 @@ export default function ProductDetail(){
           <Magnifier
             src={p.imagen}
             alt={p.nombre}
-            zoomFactor={3}
+            zoomFactor={1.0}
             lensSize={200}
             style={p.stock <= 0 ? { filter: "grayscale(1)", opacity: .6 } : undefined}
           />
