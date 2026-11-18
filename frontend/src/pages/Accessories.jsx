@@ -51,7 +51,6 @@ export default function Accessories(){
         <p className="lead">30 artículos entre cascos certificados, ropa técnica, luces, candados, hidratación, herramientas y componentes.</p>
         <div className="hero__cta">
           <a href="#catalogo-acc" className="btn btn--lg">Ver catálogo</a>
-          <Button to="/mantenimiento" variant="ghost-light">Agendar mantenimiento</Button>
         </div>
       </Hero>
 

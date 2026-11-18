@@ -53,7 +53,7 @@ export default function Footer({ variant = "tienda", leyenda }){
               {variant !== "carrito" && (
                 <div className="footer__col">
                   <h3>Únete al pelotón</h3>
-                  <p>Ofertas y guías de mantenimiento una vez al mes.</p>
+                  <p>Ofertas y novedades una vez al mes.</p>
                   <NewsletterForm />
                 </div>
               )}

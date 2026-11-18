@@ -51,7 +51,7 @@ export function generarReciboPedido(p){
       <div><span>Envío</span><span>${p.envio === 0 ? "Gratis" : fmt(p.envio)}</span></div>
       <div class="grand"><span>TOTAL PAGADO</span><span>${fmt(p.total)}</span></div>
     </div>
-    <div class="foot">Documento equivalente a factura (simulado) · Garantía de 2 años en cuadro y componentes<br>Devoluciones dentro de los 30 días · ${e(location.origin)}/mantenimiento</div>`)
+    <div class="foot">Documento equivalente a factura (simulado) · Garantía de 2 años en cuadro y componentes<br>Devoluciones dentro de los 30 días · ${e(location.origin)}</div>`)
 }
 
 export function generarReciboCita(c){
@@ -74,5 +74,5 @@ export function generarReciboCita(c){
       <div><span>Servicio</span><span>${e(c.nombreServicio)}</span></div>
       <div class="grand"><span>TOTAL ESTIMADO</span><span>${fmt(c.totalEstimado)}</span></div>
     </div>
-    <div class="foot">El valor final puede variar según repuestos requeridos (se cotizan antes de instalar).<br>Garantía de 30 días sobre mano de obra · ${e(location.origin)}/mantenimiento</div>`)
+    <div class="foot">El valor final puede variar según repuestos requeridos (se cotizan antes de instalar).<br>Garantía de 30 días sobre mano de obra · ${e(location.origin)}</div>`)
 }
