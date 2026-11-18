@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
  * Magnifier (Lupa) - Zoom tipo lupa usando background-image.
  * Es la técnica más robusta y no causa saltos o distorsiones.
  */
-export default function Magnifier({ src, alt, zoomFactor = 1.6, lensSize = 200, style, className = "" }) {
+export default function Magnifier({ src, alt, zoomFactor = 1.0, lensSize = 200, style, className = "" }) {
   const ref = useRef(null)
   const [show, setShow] = useState(false)
   const [pos, setPos] = useState({ x: 0, y: 0 })
