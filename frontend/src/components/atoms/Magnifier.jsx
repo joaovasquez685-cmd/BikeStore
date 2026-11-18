@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react"
+import { useRef, useState, useCallback, useEffect } from "react"
 
 /**
  * Magnifier (Lupa) - Componente de zoom tipo lupa para imágenes.
@@ -13,33 +13,38 @@ import { useRef, useState, useCallback } from "react"
 export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, style, className = "" }) {
   const containerRef = useRef(null)
   const imgRef = useRef(null)
-  const [pos, setPos] = useState({ x: -999, y: -999, visible: false })
-  // Rectangulo renderizado de la imagen dentro del contenedor
-  const [imgRend, setImgRend] = useState(null) // {l, t, w, h} relativos al contenedor
+  const [pos, setPos] = useState({ x: 0, y: 0, visible: false })
+  const [dimensions, setDimensions] = useState({ cw: 0, ch: 0, iw: 0, ih: 0, il: 0, it: 0 })
+
+  // Actualizar dimensiones cuando la imagen cargue o cambie el tamaño
+  const measure = useCallback(() => {
+    const c = containerRef.current
+    const i = imgRef.current
+    if (!c || !i) return
+    const cr = c.getBoundingClientRect()
+    const ir = i.getBoundingClientRect()
+    if (cr.width === 0 || cr.height === 0) return // aún no tiene layout
+    setDimensions({
+      cw: cr.width,
+      ch: cr.height,
+      iw: ir.width,
+      ih: ir.height,
+      il: ir.left - cr.left,
+      it: ir.top - cr.top,
+    })
+  }, [])
 
   useEffect(() => {
     const img = imgRef.current
     if (!img) return
-    const update = () => {
-      const c = containerRef.current
-      const i = imgRef.current
-      if (!c || !i) return
-      const cr = c.getBoundingClientRect()
-      const ir = i.getBoundingClientRect()
-      setImgRend({
-        l: ir.left - cr.left,
-        t: ir.top - cr.top,
-        w: ir.width,
-        h: ir.height,
-      })
+    measure()
+    if (!img.complete || img.naturalWidth === 0) {
+      img.addEventListener("load", measure, { once: true })
     }
-    // Intentar leer inmediatamente (si ya está cargada)
-    if (img.complete && img.naturalWidth > 0) {
-      update()
-    } else {
-      img.addEventListener("load", update, { once: true })
-    }
-  }, [src])
+    // También medir en resize
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [src, measure])
 
   const handleMouseMove = useCallback((e) => {
     const c = containerRef.current
@@ -47,19 +52,15 @@ export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, st
     const r = c.getBoundingClientRect()
     const x = e.clientX - r.left
     const y = e.clientY - r.top
-    // Solo mostrar si está dentro del contenedor
     const visible = x >= 0 && x <= r.width && y >= 0 && y <= r.height
     setPos({ x, y, visible })
   }, [])
 
-  // Calcular coordenadas de la imagen dentro de la lente
-  // Si hay info del rect rendido, usarlo; sino usar el tamaño completo del contenedor
-  const containerW = containerRef.current?.offsetWidth || 400
-  const containerH = containerRef.current?.offsetHeight || 400
-  const w = imgRend ? imgRend.w : containerW
-  const h = imgRend ? imgRend.h : containerH
-  const offX = imgRend ? imgRend.l : 0
-  const offY = imgRend ? imgRend.t : 0
+  const { cw, ch, iw, ih, il, it } = dimensions
+  const w = iw || cw
+  const h = ih || ch
+  const offX = il
+  const offY = it
 
   // Pos del cursor relativa a la imagen
   const cx = pos.x - offX
@@ -69,12 +70,11 @@ export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, st
   const clampedCX = Math.max(0, Math.min(cx, w))
   const clampedCY = Math.max(0, Math.min(cy, h))
 
-  // Ancho y alto de la porción visible en la lente
+  // Ancho y alto de la imagen dentro de la lente
   const lensW = w * zoomFactor
   const lensH = h * zoomFactor
 
-  // Desplazamiento de la imagen ampliada dentro de la lente
-  // El punto bajo el cursor debe quedar centrado en la lente (lensSize/2)
+  // Desplazamiento para centrar el punto del cursor en la lente
   const destOX = clampedCX * zoomFactor - lensSize / 2
   const destOY = clampedCY * zoomFactor - lensSize / 2
 
@@ -100,9 +100,36 @@ export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, st
     left: -destOX,
     top: -destOY,
     display: "block",
-    transform: "translateZ(0)",
     willChange: "left,top",
     transition: "left .08s linear, top .08s linear",
+  }
+
+  // No renderizar nada si aún no hay dimensiones (evita pantalla blanca)
+  if (cw === 0 || ch === 0) {
+    return (
+      <div
+        ref={containerRef}
+        className={`magnifier ${className}`}
+        style={{
+          position: "relative",
+          width: "100%",
+          aspectRatio: "1/1",
+          borderRadius: 16,
+          overflow: "hidden",
+          background: "#fff",
+          ...style,
+        }}
+      >
+        <img
+          ref={imgRef}
+          src={src}
+          alt={alt}
+          loading="eager"
+          draggable={false}
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+        />
+      </div>
+    )
   }
 
   return (
