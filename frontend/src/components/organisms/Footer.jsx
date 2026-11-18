@@ -7,7 +7,7 @@ import { useUi } from "../../hooks/useUi"
 
 /**
  * variant:
- *  - "completo": inicio (redes, más enlaces)   - "tienda": catálogo, accesorios, producto, mantenimiento
+ *  - "completo": inicio (redes, más enlaces)   - "tienda": catálogo, accesorios, producto
  *  - "carrito": sin boletín y con más métodos de pago   - "minimo": login y paneles (solo línea inferior)
  */
 export default function Footer({ variant = "tienda", leyenda }){
@@ -38,7 +38,6 @@ export default function Footer({ variant = "tienda", leyenda }){
                   <li><Link to="/catalogo">Catálogo completo</Link></li>
                   {completo && <><li><Link to="/catalogo?cat=eléctrica">Eléctricas</Link></li><li><Link to="/catalogo?cat=montaña">Montaña</Link></li></>}
                   <li><Link to="/accesorios">Accesorios</Link></li>
-                  <li><Link to="/mantenimiento">Mantenimiento</Link></li>
                   <li><Link to="/carrito">Mi carrito</Link></li>
                 </ul>
               </div>
