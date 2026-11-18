@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
  * Magnifier (Lupa) - Simple implementation using CSS transform
  * Shows a circular magnified view that follows the cursor
  */
-export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, style, className = "" }) {
+export default function Magnifier({ src, alt, zoomFactor = 2, lensSize = 200, style, className = "" }) {
   const ref = useRef(null)
   const [show, setShow] = useState(false)
   const [pos, setPos] = useState({ x: 0, y: 0 })
