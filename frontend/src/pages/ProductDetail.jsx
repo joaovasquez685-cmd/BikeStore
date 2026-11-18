@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate, useParams, Link } from "react-router-dom"
-import ProductImage from "../components/atoms/ProductImage"
+import Magnifier from "../components/atoms/Magnifier"
 import Button from "../components/atoms/Button"
 import Breadcrumbs from "../components/molecules/Breadcrumbs"
 import ReviewCard from "../components/molecules/ReviewCard"
@@ -42,9 +42,13 @@ export default function ProductDetail(){
       </div>
       <section className="pdp container">
         <div className="pdp__gallery">
-          <div className="zoom-wrap">
-            <ProductImage src={p.imagen} alt={p.nombre} loading="eager" style={p.stock <= 0 ? { filter: "grayscale(1)", opacity: .6 } : undefined} />
-          </div>
+          <Magnifier
+            src={p.imagen}
+            alt={p.nombre}
+            zoomFactor={3}
+            lensSize={200}
+            style={p.stock <= 0 ? { filter: "grayscale(1)", opacity: .6 } : undefined}
+          />
         </div>
         <ProductPurchasePanel p={p} colorIdx={colorIdx} onColor={setColorIdx} />
       </section>

@@ -180,9 +180,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .pdp{display:grid;grid-template-columns:1fr;gap:40px;padding:24px 0 40px}
 @media(min-width:900px){.pdp{grid-template-columns:1.05fr 1fr;gap:56px}}
 .pdp__gallery{background:#fff;border:1px solid var(--line);border-radius:24px;padding:14px;box-shadow:var(--sh-1);height:fit-content}
-.zoom-wrap{border-radius:16px;overflow:hidden;cursor:zoom-in;background:#fff;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
-.zoom-wrap img{width:100%;height:100%;object-fit:contain;padding:12px;transition:transform .5s cubic-bezier(.2,.7,.3,1)}
-.zoom-wrap:hover img{transform:scale(1.55)}
 .pdp__cat{color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
 .pdp__info h1{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em}
 .pdp__price{font-family:var(--font-d);font-size:2rem;font-weight:800;margin:12px 0 8px}
