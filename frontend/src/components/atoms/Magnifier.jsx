@@ -3,20 +3,20 @@ import { useRef, useState, useEffect, useCallback } from "react"
 /**
  * Magnifier (Lupa) - Componente de zoom tipo lupa para imágenes.
  * Al pasar el cursor sobre la imagen, muestra una lente circular que sigue el cursor
- * y muestra la imagen ampliada en esa zona.
+ * y muestra la imagen ampliada en esa zona con zoom real.
  *
  * @param {string} src - URL de la imagen
  * @param {string} alt - Texto alternativo
- * @param {number} zoomFactor - Factor de ampliación (default: 3)
- * @param {number} lensSize - Tamaño de la lente en px (default: 180)
+ * @param {number} zoomFactor - Factor de ampliación (default: 4)
+ * @param {number} lensSize - Tamaño de la lente en px (default: 200)
  * @param {object} style - Estilos adicionales para el contenedor
  * @param {object} imgStyle - Estilos adicionales para la imagen base
  */
 export default function Magnifier({
   src,
   alt,
-  zoomFactor = 3,
-  lensSize = 180,
+  zoomFactor = 4,
+  lensSize = 200,
   style,
   imgStyle,
   className = "",
@@ -27,33 +27,52 @@ export default function Magnifier({
   const [lensPos, setLensPos] = useState({ x: 0, y: 0 })
   const [isInside, setIsInside] = useState(false)
   const [imgLoaded, setImgLoaded] = useState(false)
-  const [imgNaturalSize, setImgNaturalSize] = useState({ width: 0, height: 0 })
+  const [imgRect, setImgRect] = useState(null) // {width, height, left, top} dentro del contenedor
 
-  // Obtener tamaño natural de la imagen
+  // Obtener tamaño y posición de la imagen real dentro del contenedor
   useEffect(() => {
     if (!imgRef.current) return
     const img = imgRef.current
-    if (img.complete && img.naturalWidth) {
-      setImgNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
-      setImgLoaded(true)
-    } else {
-      img.onload = () => {
-        setImgNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
+    const checkLoaded = () => {
+      if (img.complete && img.naturalWidth) {
+        const containerRect = containerRef.current?.getBoundingClientRect()
+        const imgRect = img.getBoundingClientRect()
+        if (containerRect) {
+          setImgRect({
+            width: imgRect.width,
+            height: imgRect.height,
+            left: imgRect.left - containerRect.left,
+            top: imgRect.top - containerRect.top,
+          })
+        }
         setImgLoaded(true)
       }
+    }
+    if (img.complete) {
+      checkLoaded()
+    } else {
+      img.onload = checkLoaded
     }
   }, [src])
 
   const handleMouseMove = useCallback((e) => {
-    if (!containerRef.current || !imgLoaded) return
+    if (!containerRef.current || !imgLoaded || !imgRect) return
 
     const rect = containerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
-    setLensPos({ x, y })
-    setIsInside(true)
-  }, [imgLoaded])
+    // Verificar si el cursor está sobre la imagen (no en el padding)
+    const isOverImage = x >= imgRect.left && x <= imgRect.left + imgRect.width &&
+                        y >= imgRect.top && y <= imgRect.top + imgRect.height
+
+    if (isOverImage) {
+      setLensPos({ x, y })
+      setIsInside(true)
+    } else {
+      setIsInside(false)
+    }
+  }, [imgLoaded, imgRect])
 
   const handleMouseLeave = useCallback(() => {
     setIsInside(false)
@@ -77,18 +96,30 @@ export default function Magnifier({
   }
 
   // Imagen dentro de la lente (ampliada)
+  // La imagen ampliada debe tener tamaño = tamaño real de la imagen * zoomFactor
+  // Y posicionarse para que el punto bajo el cursor quede centrado en la lente
+
   const containerRect = containerRef.current?.getBoundingClientRect()
   const containerWidth = containerRect?.width || 400
   const containerHeight = containerRect?.height || 400
 
-  const zoomedWidth = containerWidth * zoomFactor
-  const zoomedHeight = containerHeight * zoomFactor
+  // Usar el tamaño real de la imagen renderizada (no el contenedor)
+  const imgWidth = imgRect?.width || containerWidth
+  const imgHeight = imgRect?.height || containerHeight
+  const imgLeft = imgRect?.left || 0
+  const imgTop = imgRect?.top || 0
 
-  // Calcular el offset de la imagen ampliada para centrar en la posición del cursor
-  // El cursor está en lensPos (relativo al contenedor)
-  // La imagen ampliada debe moverse para que el punto bajo el cursor quede centrado en la lente
-  const offsetX = (lensPos.x / containerWidth) * zoomedWidth - lensSize / 2
-  const offsetY = (lensPos.y / containerHeight) * zoomedHeight - lensSize / 2
+  const zoomedWidth = imgWidth * zoomFactor
+  const zoomedHeight = imgHeight * zoomFactor
+
+  // Posición del cursor RELATIVA A LA IMAGEN (no al contenedor)
+  const cursorXOnImg = lensPos.x - imgLeft
+  const cursorYOnImg = lensPos.y - imgTop
+
+  // Calcular offset para centrar el punto del cursor en la lente
+  // La imagen ampliada se mueve para que cursorXOnImg * zoomFactor quede en el centro de la lente
+  const offsetX = cursorXOnImg * zoomFactor - lensSize / 2
+  const offsetY = cursorYOnImg * zoomFactor - lensSize / 2
 
   const zoomedImgStyle = {
     width: zoomedWidth,
@@ -98,10 +129,10 @@ export default function Magnifier({
     top: -offsetY,
     objectFit: "cover",
     transform: "translateZ(0)",
-    willChange: "transform",
+    willChange: "transform, left, top",
   }
 
-  // Estilo para la imagen base (ocupar todo el contenedor)
+  // Estilo para la imagen base (ocupar todo el contenedor con contain)
   const baseImgStyle = {
     width: "100%",
     height: "100%",
@@ -139,7 +170,7 @@ export default function Magnifier({
       />
 
       {/* Lente con imagen ampliada */}
-      {isInside && imgLoaded && (
+      {isInside && imgLoaded && imgRect && (
         <div className="magnifier-lens" style={lensStyle} aria-hidden="true">
           <img src={src} alt="" style={zoomedImgStyle} />
         </div>
