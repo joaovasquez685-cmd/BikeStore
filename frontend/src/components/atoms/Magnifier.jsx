@@ -1,70 +1,35 @@
-import { useRef, useState, useCallback, useLayoutEffect } from "react"
+import { useRef, useState } from "react"
 
 /**
- * Magnifier (Lupa) - Componente de zoom tipo lupa para imágenes.
- * Usamos background-image + background-size/background-position para evitar
- * problemas de overlap/positonning con imgs anidados.
+ * Magnifier (Lupa) - Zoom tipo lupa usando background-image technique.
  *
- * @param {string} src - URL de la imagen
- * @param {string} alt - Texto alternativo
- * @param {number} zoomFactor - Factor de ampliación (default: 4)
- * @param {number} lensSize - Tamaño de la lente en px (default: 200)
+ * La lente es un círculo con background-image donde:
+ *   - background-size = 100% × zoomFactor → la imagen se amplía zoomFactor veces
+ *   - background-position = posición para que el punto bajo el cursor quede en el centro de la lente
  */
-export default function Magnifier({
-  src,
-  alt,
-  zoomFactor = 4,
-  lensSize = 200,
-  style,
-  className = "",
-}) {
-  const containerRef = useRef(null)
-  const [showLens, setShowLens] = useState(false)
-  const [pos, setPos] = useState({ x: 0, y: 0 })
-  // Guardamos dims en ref mutable
-  const dimsRef = useRef(null)
+export default function Magnifier({ src, alt, zoomFactor = 4, lensSize = 200, style, className = "" }) {
+  const ref = useRef(null)
+  const [show, setShow] = useState(false)
+  const [pos, setPos] = useState({ x: 0, y: 0, cw: 0, ch: 0 })
 
-  // Calcular dimensiones de la imagen real (con object-fit: contain)
-  const calcDims = useCallback(() => {
-    const c = containerRef.current
-    if (!c) return
-    const cr = c.getBoundingClientRect()
-    dimsRef.current = {
-      w: cr.width,
-      h: cr.height,
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    calcDims()
-    window.addEventListener("resize", calcDims)
-    return () => window.removeEventListener("resize", calcDims)
-  }, [calcDims])
-
-  const handleMouseMove = useCallback((e) => {
-    const c = containerRef.current
-    if (!c) return
-    const r = c.getBoundingClientRect()
+  const onMouseMove = (e) => {
+    if (!ref.current) return
+    const r = ref.current.getBoundingClientRect()
     const x = e.clientX - r.left
     const y = e.clientY - r.top
-    const inContainer = x >= 0 && x <= r.width && y >= 0 && y <= r.height
-    if (!inContainer) {
-      setShowLens(false)
-      return
+    if (x >= 0 && x <= r.width && y >= 0 && y <= r.height) {
+      setPos({ x, y, cw: r.width, ch: r.height })
+      setShow(true)
+    } else {
+      setShow(false)
     }
-    setShowLens(true)
-    setPos({ x, y })
-  }, [])
+  }
 
-  const d = dimsRef.current
-  const containerW = d ? d.w : 400
-  const containerH = d ? d.h : 400
-
-  // Si no tenemos dims todavía, renderizamos solo la imagen base
-  if (!d || containerW === 0 || containerH === 0) {
+  // Renderizado inicial sin lente (espera a tener dimensiones)
+  if (!show || pos.cw === 0) {
     return (
       <div
-        ref={containerRef}
+        ref={ref}
         className={`magnifier ${className}`}
         style={{ position: "relative", width: "100%", aspectRatio: "1/1", borderRadius: 16, overflow: "hidden", background: "#fff", ...style }}
       >
@@ -74,27 +39,20 @@ export default function Magnifier({
     )
   }
 
-  // Pos del cursor relativa al contenedor (0..w, 0..h)
-  const cx = Math.max(0, Math.min(pos.x, containerW))
-  const cy = Math.max(0, Math.min(pos.y, containerH))
+  const d = pos
+  const zw = zoomFactor * 100 // background-size en % (relativo al contenedor del bg)
 
-  // La imagen ampliada tiene tamaño = container × zoomFactor
-  // background-size usa porcentajes relativos al contenedor del background (la lente)
-  // Para que la imagen ocupe X veces el tamaño del contenedor:
-  const bgSizeX = zoomFactor * 100
-  const bgSizeY = zoomFactor * 100
-
-  // background-position: el porcentaje indica qué parte de la imagen ampliada
-  // aparece en el borde izquierdo/superior de la lente
-  // Cuando cx=0 (cursor arriba-izq): queremos ver la parte izquierda de la imagen ampliada
-  // La posición en pixeles del punto bajo el cursor en la imagen ampliada es: cx*zoomFactor, cy*zoomFactor
-  // Queremos que ese punto quede en el centro de la lente: (lensSize/2, lensSize/2)
-  // Entonces: pozX * zoomFactor - bgOffsetX = lensSize/2
-  //   => bgOffsetX = cx*zoomFactor - lensSize/2
-  // En porcentaje relativo al fondo (bgSizeW = containerW*zoomFactor):
-  //   pozX% = bgOffsetX / (containerW * zoomFactor) * 100
-  const bgPosX = ((cx * zoomFactor - lensSize / 2) / (containerW * zoomFactor)) * 100
-  const bgPosY = ((cy * zoomFactor - lensSize / 2) / (containerH * zoomFactor)) * 100
+  // Posición del cursor relativa al rectangulo de la imagen base (considerando object-fit: contain)
+  // Como no tenemos imgRend aún, usamos el contenedor completo
+  // El background-size es 400%, asi que el img original ocupa el 100% del fondo
+  // Para centrar el punto (cx, cy) en el centro de la lente (lensSize/2):
+  //   bgPosX = cx / (cw * zoomFactor - lensSize) * 100
+  // pero calculado correctamente:
+  const cx = d.x
+  const cy = d.y
+  // Background-position en porcentajes: cuanto más a la derecha/bajo el cursor, más a la derecha/bajo el background
+  const bpx = ((cx * zoomFactor - lensSize / 2) / (d.cw * zoomFactor)) * 100
+  const bpy = ((cy * zoomFactor - lensSize / 2) / (d.ch * zoomFactor)) * 100
 
   const lensStyle = {
     position: "absolute",
@@ -104,20 +62,19 @@ export default function Magnifier({
     pointerEvents: "none",
     overflow: "hidden",
     backgroundImage: `url(${src})`,
-    backgroundSize: `${bgSizeX}% ${bgSizeY}%`,
-    backgroundPosition: `${bgPosX}% ${bgPosY}%`,
+    backgroundSize: `${zw}% ${zw}%`,
+    backgroundPosition: `${bpx}% ${bpy}%`,
     backgroundRepeat: "no-repeat",
-    boxShadow: "0 0 0 2px rgba(255,255,255,.92), 0 6px 24px rgba(0,0,0,.18)",
-    left: pos.x - lensSize / 2,
-    top: pos.y - lensSize / 2,
+    boxShadow: "0 0 0 3px rgba(255,255,255,.95), 0 8px 24px rgba(0,0,0,.18)",
+    left: d.x - lensSize / 2,
+    top: d.y - lensSize / 2,
     zIndex: 10,
-    opacity: showLens ? 1 : 0,
-    transition: "opacity .1s ease-out",
+    opacity: 1,
   }
 
   return (
     <div
-      ref={containerRef}
+      ref={ref}
       className={`magnifier ${className}`}
       style={{
         position: "relative",
@@ -126,18 +83,18 @@ export default function Magnifier({
         borderRadius: 16,
         overflow: "hidden",
         background: "#fff",
-        cursor: showLens ? "none" : "zoom-in",
+        cursor: "crosshair",
         ...style,
       }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setShowLens(false)}
+      onMouseMove={onMouseMove}
+      onMouseLeave={() => setShow(false)}
     >
       {/* Imagen base */}
       <img src={src} alt={alt} loading="eager" draggable={false}
         style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
 
-      {/* Lente zoom con background-image technique */}
-      {showLens && (
+      {/* Lente */}
+      {show && (
         <div className="magnifier-lens" style={lensStyle} aria-hidden="true" />
       )}
     </div>
